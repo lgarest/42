@@ -50,7 +50,7 @@ void resize(int w, int h){
     }
 
     if (verbose)
-        printf("_%s: %d, %s: %d, %s: %d, %s: %d, \n", "win_height", h, "win_width", w, "viewport_height", currViewportSize[0], "viewport_width", currViewportSize[1]);
+        printf("_%s: %d, %s: %d, %s: %d, %s: %d, \n", "win_h", h, "win_w", w, "vport_h", currViewportSize[0], "vport_w", currViewportSize[1]);
 
     // glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
     glViewport(0.5*(w-currViewportSize[0]),
