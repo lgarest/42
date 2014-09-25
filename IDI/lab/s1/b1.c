@@ -8,25 +8,41 @@ GLfloat ASPECT_RATIO = 1.0;
 GLint currWindowSize[2]   = { 500, 500 };
 GLint currViewportSize[2] = { 500, 500 };
 GLint currViewportStartPos[2] = { 0, 0 };
+GLfloat bckgrndColor[3] = {0.0, 0.0, 0.0};
+GLint lastClick[2];
 bool verbose = false;
 bool axis = false;
 bool new_triangle = false;
 bool button_pressed = false;
+bool changeBckColor = false;
 GLfloat p1[2] = {0.0, 0.0};
 GLfloat p2[2] = {0.0, 0.0};
 GLfloat p3[2] = {0.0, 0.0};
 int triangleCounter = 0;
 
 void displayHelp(){
-    printf("********************\n");
-    printf("  %s \n", "Bloque 1 Luis García");
-    printf("  %s \n", "'t' para crear un nuevo triángulo");
-    printf("  %s \n", "'x' para mostrar/ocultar los ejes");
-    printf("  %s \n", "'r' para resetear");
-    printf("  %s \n", "'q' o 'esc' para cerrar el programa");
-    printf("  %s \n", "'h' para mostrar esta ayuda");
-    printf("  %s \n", "'v' para habilitar / deshabilitar el modo verbose");
-    printf("********************\n");
+    printf("**************************************************************\n");
+    printf("* %s \n", "Bloque 1 Luis García Estrades grupo:13");
+    printf("* %s \n", "'t' para crear un nuevo triángulo");
+    printf("* %s \n", "'f' para habilitar / deshabilitar cambiar el color del fondo");
+    printf("* %s \n", "'x' para mostrar/ocultar los ejes");
+    printf("* %s \n", "'r' para resetear");
+    printf("* %s \n", "'q' o 'esc' para cerrar el programa");
+    printf("* %s \n", "'h' para mostrar esta ayuda");
+    printf("* %s \n", "'v' para habilitar / deshabilitar el modo debug o verbose");
+    printf("**************************************************************\n");
+}
+
+float max(float a, float b){
+    if(a >= b) return a;
+    return b;
+}
+float min(float a, float b){
+    if(a >= b) return b;
+    return a;
+}
+float normalize(float a){
+    return max(min(a, 1.0), 0.0);
 }
 
 void drawAxis(){
@@ -50,12 +66,9 @@ void drawAxis(){
 }
 
 void refresh(void){
-    // glClearColor(1.0, 1.0, 1.0, 1.0); // adapt this to the color you want
+    glClearColor(bckgrndColor[0], bckgrndColor[1], bckgrndColor[2], 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // void glColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-
-    // printf("\n REFRESH");
     if (new_triangle and triangleCounter == 3){
         glBegin(GL_TRIANGLES);
             glColor4f(1.0, 0.0, 0.0, 1.0);
@@ -79,6 +92,11 @@ void refresh(void){
             glVertex3f(0.0,2.0/3.0,0.0);
         glEnd();
     }
+    if (verbose) printf("\n**** %s: %d \n", "new_triangle", new_triangle);
+    if (verbose) printf("**** %s: %d \n", "triangle_vertex_counter", triangleCounter);
+    if (verbose) printf("**** %s: %d \n", "show_axis", axis);
+    if (verbose) printf("**** %s: %d \n", "changeBckColor", changeBckColor);
+    if (verbose) printf("**** %s: (%d, %d) \n", "last_click_position", lastClick[0], lastClick[1]);
     if (axis) drawAxis();
     glutSwapBuffers();
 }
@@ -87,17 +105,15 @@ void resize(int w, int h){
     currWindowSize[0] = w;
     currWindowSize[1] = h;
     if (ASPECT_RATIO > w/h) {
-        if (verbose) printf("_%s \n", "largo");
         currViewportSize[0] = w;
         currViewportSize[1] = w / ASPECT_RATIO;
     }
     else {
-        if (verbose) printf("_%s \n", "ancho");
         currViewportSize[1] = h;
         currViewportSize[0] = h * ASPECT_RATIO;
     }
 
-    if (verbose) printf("_%s: (%d-%d), %s: (%d-%d), \n", "win_h-w", h, w, "vport_h-w", currViewportSize[0], currViewportSize[1]);
+    if (verbose) printf("**** %s: (%d-%d), %s: (%d-%d) \n", "win_h-w", h, w, "vport_h-w", currViewportSize[0], currViewportSize[1]);
 
     // glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
     currViewportStartPos[0] = 0.5*(w-currViewportSize[0]);
@@ -110,9 +126,8 @@ void resize(int w, int h){
 }
 
 void mousePressCtrl(int button, int state, int x, int y){
-    // entra al hacer click y al salir
-    button_pressed = !button_pressed;
-    if (new_triangle and button_pressed){
+    button_pressed = button == GLUT_LEFT_BUTTON && state == GLUT_DOWN;
+    if (button_pressed and triangleCounter <=3){
         if (triangleCounter == 0){
             p1[0] = (x - (currWindowSize[0]/2.0))/(currViewportSize[0]/2.0);
             p1[1] = (y - currWindowSize[1]/2.0)/-(currViewportSize[1]/2.0);
@@ -129,13 +144,24 @@ void mousePressCtrl(int button, int state, int x, int y){
             triangleCounter++;
         }
     }
+    if(button_pressed and changeBckColor){
+        lastClick[0] = x;
+        lastClick[1] = y;
+    }
+    if (!button_pressed) changeBckColor = false;
     glutPostRedisplay();
 }
 
 void mouseMotionCtrl(int x, int y){
-    printf("motion \n");
-    printf("x %d \n", x);
-    printf("y %d \n", y);
+    if (changeBckColor){
+        bckgrndColor[2] += (float(x-lastClick[0])/float(currWindowSize[0]));
+        bckgrndColor[1] += -(float(y-lastClick[1])/float(currWindowSize[1]));
+        bckgrndColor[2] = normalize(bckgrndColor[2]);
+        bckgrndColor[1] = normalize(bckgrndColor[1]);
+        if (verbose) printf("%s: (%f, %f, %f)\n", "bckgrndColor", bckgrndColor[0], bckgrndColor[1], bckgrndColor[2]);
+    }
+    lastClick[0] = x;
+    lastClick[1] = y;
     glutPostRedisplay();
 }
 
@@ -151,11 +177,14 @@ void keyboardCtrl(unsigned char key, int x, int y){
             break;
         case 'v':
             verbose = !verbose;
-            printf("_verbose mode %d \n", verbose);
+            printf("**** verbose mode %d \n", verbose);
             break;
         case 'r':
-            triangleCounter = 0;
-            new_triangle = false;
+            triangleCounter = new_triangle = changeBckColor = axis = 0;
+            bckgrndColor[0] = bckgrndColor[1] = bckgrndColor[2] = 0.0;
+            break;
+        case 'f':
+            changeBckColor = !changeBckColor;
             break;
         case 'x':
             axis = !axis;
