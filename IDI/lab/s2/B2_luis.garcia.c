@@ -44,21 +44,21 @@ float normalizeAngle(float a){
     return max(min(a, 360.0), 0.0);
 }
 
-void drawAxis(float distance){
+void drawAxis(float distance, float intensity){
     // needs axis variable declared previously
     glBegin(GL_LINES);
         // x axis blue
-        glColor4f(0.0, 0.0, 1.0, 1.0);
+        glColor4f(0.0, 0.0, intensity, 1.0);
         glVertex3f(-distance, 0.0, 0.0);
         glVertex3f(distance, 0.0, 0.0);
 
         // y axis green
-        glColor4f(0.0, 1.0, 0.0, 1.0);
+        glColor4f(0.0, intensity, 0.0, 1.0);
         glVertex3f(0.0, -distance, 0.0);
         glVertex3f(0.0, distance, 0.0);
 
         // z axis red
-        glColor4f(1.0, 0.0, 0.0, 1.0);
+        glColor4f(intensity, 0.0, 0.0, 1.0);
         glVertex3f(0.0, 0.0, -distance);
         glVertex3f(0.0, 0.0, distance);
     glEnd();
@@ -76,14 +76,14 @@ void refresh(void){
         glPushMatrix();
             glRotatef(anglex,0.0,1.0,0.0);
             glRotatef(angley,1.0,0.0,0.0);
-            if (axis) drawAxis(0.5);
+            if (axis) drawAxis(0.7, 0.5);
             glColor4f(1.0, 1.0, 1.0, 1.0);
             glutWireTeapot(0.5);
         glPopMatrix();
     }
 
     if (verbose) printf("**** %s: %d \n", "show_axis", axis);
-    if (axis) drawAxis(100.0);
+    if (axis) drawAxis(100.0, 1.0);
     glutSwapBuffers();
     if (verbose) printf("**** %s: (%f-%f) \n", "angle x-y", anglex, angley);
 }
