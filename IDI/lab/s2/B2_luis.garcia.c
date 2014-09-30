@@ -19,6 +19,8 @@ bool teapot = true;
 bool translate = false;
 GLfloat anglex = 0.0;
 GLfloat angley = 0.0;
+Model legoman;
+
 
 
 /***********************/
@@ -36,7 +38,8 @@ void mousePressCtrl(int button, int state, int x, int y);
 void mouseMotionCtrl(int x, int y);
 void keyboardCtrl(unsigned char key, int x, int y);
 void drawFloor();
-void display_model(Model a);
+void displayModel(Model a, GLfloat size, GLfloat x, GLfloat y, GLfloat z);
+void displayCone(GLfloat radius, GLfloat height, GLfloat x, GLfloat y, GLfloat z);
 
 void displayHelp(){
     printf("**************************************************************\n");
@@ -174,13 +177,103 @@ void drawFloor(){
     glEnd();
 }
 
-void display_model(Model a){
-    for(int i = 0; i < a.faces().size(); ++i){
-      const Face &f = a.faces()[i];
-      glVertex3dv(&a.vertices()[f.v[0]]);
-      glVertex3dv(&a.vertices()[f.v[1]]);
-      glVertex3dv(&a.vertices()[f.v[2]]);
+void displayModel(Model a, GLfloat size, GLfloat x, GLfloat y, GLfloat z){
+    GLfloat xmin, xmax, ymin, ymax, zmin, zmax;
+    GLfloat xcentral, ycentral, zcentral;
+    GLfloat scalemodel;
+    xmin = xmax = a.vertices()[0];
+    ymin = ymax = a.vertices()[1];
+    zmin = zmax = a.vertices()[2];
+
+    for (int i = 0; i < a.vertices().size(); i+=3) {
+        if(xmin>a.vertices()[i]) xmin = a.vertices()[i];
+        if(xmax<a.vertices()[i]) xmax = a.vertices()[i];
+
+        if(ymin>a.vertices()[i+1]) ymin = a.vertices()[i+1];
+        if(ymax<a.vertices()[i+1]) ymax = a.vertices()[i+1];
+
+        if(zmin>a.vertices()[i+2]) zmin = a.vertices()[i+2];
+        if(zmax<a.vertices()[i+2]) zmax = a.vertices()[i+2];
     }
+    // we set the central point for each model axis
+    xcentral = (xmin+xmax)/2;
+    ycentral = (ymin+ymax)/2;
+    zcentral = (zmin+zmax)/2;
+    // if(first) mz = zcentral;
+
+    scalemodel = abs(abs(ymax) - abs(ymin));
+    // if (scalemodel < abs(xmax - xmin)) scalemodel = abs(xmax - xmin);
+    if (scalemodel < abs(zmax - zmin)) scalemodel = abs(zmax - zmin);
+    scalemodel = size/scalemodel;
+
+    glPushMatrix();
+        // we scale model to the desired total size
+        glTranslatef(0,0,0);
+        glTranslatef(x,y,z);
+
+        // rotations applied to the model
+        // glRotatef(-90, 1.0, 0.0, 0.0);
+        // glRotatef(90, 0.0, 1.0, 0.0);
+        // glRotatef(90, 0.0, 0.0, 1.0);
+
+        glScalef(scalemodel,scalemodel,scalemodel);
+        // we translate the model to be drawn in the (0,0,0)
+        glTranslatef(-xcentral,-ycentral,-zcentral);
+        // now we draw the vertexs and the normals
+    glBegin(GL_TRIANGLES);
+        for(int i = 0; i < a.faces().size(); ++i){
+            const Face &f = a.faces()[i];
+            glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*) &Materials[f.mat].ambient);
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, (GLfloat*) &Materials[f.mat].diffuse);
+            glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*) &Materials[f.mat].specular);
+            glMaterialfv(GL_FRONT, GL_SHININESS, (GLfloat*) &Materials[f.mat].shininess);
+
+            if(f.n.size() == 0) {
+                    glNormal3dv(a.faces()[i].normalC);
+                    glVertex3dv(&a.vertices()[f.v[0]]);
+                    glVertex3dv(&a.vertices()[f.v[1]]);
+                    glVertex3dv(&a.vertices()[f.v[2]]);
+                }
+                // Otherwise we render the normals from each vertex.
+                else{
+                    glNormal3dv(&a.normals()[f.n[0]]);
+                    glVertex3dv(&a.vertices()[f.v[0]]);
+
+                    glNormal3dv(&a.normals()[f.n[1]]);
+                    glVertex3dv(&a.vertices()[f.v[1]]);
+
+                    glNormal3dv(&a.normals()[f.n[2]]);
+                    glVertex3dv(&a.vertices()[f.v[2]]);
+                }
+        }
+    glEnd();
+    glPopMatrix();
+}
+
+void displayCone(GLfloat radius, GLfloat height, GLfloat x, GLfloat y, GLfloat z){
+    glPushMatrix();
+        glTranslatef(x,y,z);
+        glRotatef( 90.0, 0.0, 1.0, 0.0 );
+        glScalef(radius,radius,height);
+        glColor4f(1.0, 0.47, 0.12, 1.0);
+        glutSolidCone(1,1,48,48);
+    glPopMatrix();
+}
+
+void displaySnowMan(){
+    glPushMatrix();
+        // glTranslatef(x,y,z);
+        // glRotatef( -90.0, 1.0, 0.0, 0.0 );
+        // glScalef(radius,radius,height);
+        glColor4f(1.0, 1.0, 1.0, 1.0);
+        // glutSolidCone(1,1,48,48);
+        glutSolidSphere(0.4, 40, 40);
+        glPushMatrix();
+            glTranslatef(0.0,0.6,0.0);
+            glutSolidSphere(0.2, 40, 40);
+        glPopMatrix();
+        displayCone(0.1, 0.6, 0.1,0.6,0.0);
+    glPopMatrix();
 }
 
 void refresh(void){
@@ -189,20 +282,36 @@ void refresh(void){
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    // scene rotation
+    glRotatef(anglex,0.0,1.0,0.0);
+    glRotatef(angley,1.0,0.0,0.0);
+
+    glColor4f(0.0, 0.0, 1.0, 1.0);
+    // displayModel(legoman, 0.5, -0.75, -0.15, -0.75);
+    displayModel(legoman, 0.5, -0.97, -0.15, -0.65);
+
     glPushMatrix();
-        glRotatef(anglex,0.0,1.0,0.0);
-        glRotatef(angley,1.0,0.0,0.0);
-
-        if (axis) drawAxis(0.7, 0.5);
-        glColor4f(1.0, 1.0, 1.0, 1.0);
-
-        glutWireTeapot(0.5);
-        drawFloor();
+        glRotatef(90.0,0.0,0.0,1.0);
+        glTranslatef(0.0, -0.4, 0.0);
+        displaySnowMan();
     glPopMatrix();
+
+    glColor4f(1.0, 0.0, 1.0, 1.0);
+    glPushMatrix();
+        glTranslatef(-0.75, -0.4, -0.75);
+        glutWireSphere(0.01, 40, 40);
+    glPopMatrix();
+
+    glColor4f(1.0, 1.0, 1.0, 1.0);
+
+    // glutWireTeapot(0.5);
+    drawFloor();
 
 
     if (axis) drawAxis(100.0, 1.0);
     if (verbose) showVariables();
+    glDepthMask(GL_TRUE);
     glutSwapBuffers();
 }
 
@@ -215,6 +324,8 @@ int main(int argc, char const *argv[]){
 
     glutCreateWindow("Bloque 2: Luis García Estrades Grupo: 13");
 
+
+    legoman.load("../models/legoman.obj");
     //callbacks
     glutDisplayFunc(refresh);
     glutReshapeFunc(resize);
@@ -223,6 +334,11 @@ int main(int argc, char const *argv[]){
     glutKeyboardFunc(keyboardCtrl);
 
     displayHelp();
+
+    // Set up depth testing.
+    glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_NORMALIZE);
 
     //bucle, procesamiento de eventos
     glutMainLoop();
