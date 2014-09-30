@@ -2,6 +2,7 @@
 
 #include <GL/gl.h>
 #include <GL/freeglut.h>
+#include "../models/model.h"
 
 
 GLfloat ASPECT_RATIO = 1.0;
@@ -15,8 +16,27 @@ GLint lastClick[2];
 
 bool left_pressed = false;
 bool teapot = true;
+bool translate = false;
 GLfloat anglex = 0.0;
 GLfloat angley = 0.0;
+
+
+/***********************/
+/* Function prototypes */
+/***********************/
+void displayHelp();
+float max(float a, float b);
+float min(float a, float b);
+float normalize(float a);
+float normalizeAngle(float a);
+void drawAxis(float distance, float intensity);
+void showVariables();
+void resize(int w, int h);
+void mousePressCtrl(int button, int state, int x, int y);
+void mouseMotionCtrl(int x, int y);
+void keyboardCtrl(unsigned char key, int x, int y);
+void drawFloor();
+void display_model(Model a);
 
 void displayHelp(){
     printf("**************************************************************\n");
@@ -62,30 +82,13 @@ void drawAxis(float distance, float intensity){
         glVertex3f(0.0, 0.0, -distance);
         glVertex3f(0.0, 0.0, distance);
     glEnd();
-
 }
 
-void refresh(void){
-    // glClearColor(bckgrndColor[0], bckgrndColor[1], bckgrndColor[2], 1.0);
-    glClearColor(0.0,0.0,0.0,1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glMatrixMode(GL_MODELVIEW);
-    // glLoadIdentity();
-    if(teapot){
-        glPushMatrix();
-            glRotatef(anglex,0.0,1.0,0.0);
-            glRotatef(angley,1.0,0.0,0.0);
-            if (axis) drawAxis(0.7, 0.5);
-            glColor4f(1.0, 1.0, 1.0, 1.0);
-            glutWireTeapot(0.5);
-        glPopMatrix();
-    }
-
-    if (verbose) printf("**** %s: %d \n", "show_axis", axis);
-    if (axis) drawAxis(100.0, 1.0);
-    glutSwapBuffers();
-    if (verbose) printf("**** %s: (%f-%f) \n", "angle x-y", anglex, angley);
+void showVariables(){
+    printf("\n**** %s: %d \n", "translate", translate);
+    printf("**** %s: %d \n", "left_pressed", left_pressed);
+    printf("**** %s: %d \n", "show_axis", axis);
+    printf("**** %s: (%f,%f) \n", "angle x,y", anglex, angley);
 }
 
 void resize(int w, int h){
@@ -115,17 +118,16 @@ void resize(int w, int h){
 void mousePressCtrl(int button, int state, int x, int y){
     left_pressed = button == GLUT_LEFT_BUTTON && state == GLUT_DOWN;
 
-    if(left_pressed){
+    if(!translate and left_pressed){
         lastClick[0] = x;
         lastClick[1] = y;
     }
-    if (verbose) printf("**** %s: %d \n", "left_pressed", left_pressed);
 
     glutPostRedisplay();
 }
 
 void mouseMotionCtrl(int x, int y){
-    if(left_pressed){
+    if(!translate and left_pressed){
         anglex += float(x - lastClick[0]);
         angley += float(y - lastClick[1]);
         lastClick[0] = x;
@@ -140,9 +142,11 @@ void keyboardCtrl(unsigned char key, int x, int y){
         case 'h':
             displayHelp();
             break;
+        case 'c':
+            translate = !translate;
+            break;
         case 'v':
             verbose = !verbose;
-            printf("**** verbose mode %d \n", verbose);
             break;
         case 'r':
             axis = 0;
@@ -160,6 +164,47 @@ void keyboardCtrl(unsigned char key, int x, int y){
     glutPostRedisplay();
 }
 
+void drawFloor(){
+    glBegin(GL_QUADS);
+        glColor4f(0.44,0.95,0.46,1.0);
+        glVertex3f(-0.75, -0.4, -0.75);
+        glVertex3f(-0.75, -0.4, 0.75);
+        glVertex3f(0.75, -0.4, 0.75);
+        glVertex3f(0.75, -0.4, -0.75);
+    glEnd();
+}
+
+void display_model(Model a){
+    for(int i = 0; i < a.faces().size(); ++i){
+      const Face &f = a.faces()[i];
+      glVertex3dv(&a.vertices()[f.v[0]]);
+      glVertex3dv(&a.vertices()[f.v[1]]);
+      glVertex3dv(&a.vertices()[f.v[2]]);
+    }
+}
+
+void refresh(void){
+    glClearColor(0.0,0.0,0.0,1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glPushMatrix();
+        glRotatef(anglex,0.0,1.0,0.0);
+        glRotatef(angley,1.0,0.0,0.0);
+
+        if (axis) drawAxis(0.7, 0.5);
+        glColor4f(1.0, 1.0, 1.0, 1.0);
+
+        glutWireTeapot(0.5);
+        drawFloor();
+    glPopMatrix();
+
+
+    if (axis) drawAxis(100.0, 1.0);
+    if (verbose) showVariables();
+    glutSwapBuffers();
+}
 
 int main(int argc, char const *argv[]){
 

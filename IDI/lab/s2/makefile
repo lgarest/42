@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-lglut -lGL
 FILENAME=B2_luis.garcia
 
-all: bloque1
+all: bloque1 exe
 
 bloque1: $(FILENAME).c
 	$(CC) $(FILENAME).c $(CFLAGS) -o $(FILENAME).exe
