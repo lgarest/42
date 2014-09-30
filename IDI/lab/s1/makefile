@@ -1,7 +1,11 @@
+CC=g++
+CFLAGS=-lglut -lGL
+FILENAME=B1_luis.garcia
+
 all: bloque1
 
-bloque1: b1.c
-	g++ b1.c -lglut -lGL -o bloque1.exe
+bloque1: $(FILENAME).c
+	$(CC) $(FILENAME).c $(CFLAGS) -o $(FILENAME).exe
 
 clean:
 	rm *.exe
