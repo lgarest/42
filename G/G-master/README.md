@@ -1,0 +1,4 @@
+G
+=
+
+Exercicis de Gràfics
