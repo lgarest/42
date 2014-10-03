@@ -16,8 +16,8 @@ vector<int> modelStack;
 uint indexOfNextLitToPropagate;
 uint decisionLevel;
 
-
-void readClauses( ){
+// lee el # de variables, # de clausulas y las clausulas
+void readClauses(){
   // Skip comments
   char c = cin.get();
   while (c == 'c') {
@@ -33,6 +33,11 @@ void readClauses( ){
     int lit;
     while (cin >> lit and lit != 0) clauses[i].push_back(lit);
   }
+  // for (int i = 0; i < clauses.size(); ++i){
+  //   for (int j = 0; j < clauses[0].size(); ++j)
+  //     cout << clauses[i][j] << ' ';
+  //   cout << endl;
+  // }
 }
 
 
@@ -73,6 +78,7 @@ bool propagateGivesConflict ( ) {
 }
 
 
+// backtrack func
 void backtrack(){
   uint i = modelStack.size() -1;
   int lit = 0;
@@ -97,6 +103,7 @@ int getNextDecisionLiteral(){
   return 0; // reurns 0 when all literals are defined
 }
 
+// checks if the model is correct
 void checkmodel(){
   for (int i = 0; i < numClauses; ++i){
     bool someTrue = false;
@@ -114,6 +121,9 @@ void checkmodel(){
 int main(){
   readClauses(); // reads numVars, numClauses and clauses
   model.resize(numVars+1,UNDEF);
+  for (int i = 0; i < model.size(); ++i) {
+    cout << model[i] << ' ';
+  }
   indexOfNextLitToPropagate = 0;
   decisionLevel = 0;
 
@@ -127,8 +137,10 @@ int main(){
     }
 
   // DPLL algorithm
+  // Davis-Putnam-Loveland-Logemann
   while (true) {
     while ( propagateGivesConflict() ) {
+      // si hemos vuelto al principio
       if ( decisionLevel == 0) { cout << "UNSATISFIABLE" << endl; return 10; }
       backtrack();
     }
