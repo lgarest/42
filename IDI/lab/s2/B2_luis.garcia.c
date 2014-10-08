@@ -19,6 +19,8 @@ bool teapot = true;
 bool translate = false;
 GLfloat anglex = 0.0;
 GLfloat angley = 0.0;
+GLfloat translatex = -0.90;
+GLfloat translatey = -0.15;
 Model legoman;
 
 
@@ -27,17 +29,13 @@ Model legoman;
 /* Function prototypes */
 /***********************/
 void displayHelp();
-float max(float a, float b);
-float min(float a, float b);
-float normalize(float a);
-float normalizeAngle(float a);
 void drawAxis(float distance, float intensity);
 void showVariables();
 void resize(int w, int h);
 void mousePressCtrl(int button, int state, int x, int y);
 void mouseMotionCtrl(int x, int y);
 void keyboardCtrl(unsigned char key, int x, int y);
-void drawFloor();
+void displayFloor();
 void displayModel(Model a, GLfloat size, GLfloat x, GLfloat y, GLfloat z);
 void displayCone(GLfloat radius, GLfloat height, GLfloat x, GLfloat y, GLfloat z);
 
@@ -50,21 +48,6 @@ void displayHelp(){
     printf("* %s \n", "'h' para mostrar esta ayuda");
     printf("* %s \n", "'v' para habilitar / deshabilitar el modo debug o verbose");
     printf("**************************************************************\n");
-}
-
-float max(float a, float b){
-    if(a >= b) return a;
-    return b;
-}
-float min(float a, float b){
-    if(a >= b) return b;
-    return a;
-}
-float normalize(float a){
-    return max(min(a, 1.0), 0.0);
-}
-float normalizeAngle(float a){
-    return max(min(a, 360.0), 0.0);
 }
 
 void drawAxis(float distance, float intensity){
@@ -108,7 +91,6 @@ void resize(int w, int h){
 
     if (verbose) printf("**** %s: (%d-%d), %s: (%d-%d) \n", "win_h-w", h, w, "vport_h-w", currViewportSize[0], currViewportSize[1]);
 
-    // glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
     currViewportStartPos[0] = 0.5*(w-currViewportSize[0]);
     currViewportStartPos[1] = 0.5*(h-currViewportSize[1]);
     glViewport(currViewportStartPos[0],
@@ -120,19 +102,23 @@ void resize(int w, int h){
 
 void mousePressCtrl(int button, int state, int x, int y){
     left_pressed = button == GLUT_LEFT_BUTTON && state == GLUT_DOWN;
-
-    if(!translate and left_pressed){
+    if(left_pressed){
         lastClick[0] = x;
         lastClick[1] = y;
     }
-
     glutPostRedisplay();
 }
 
 void mouseMotionCtrl(int x, int y){
     if(!translate and left_pressed){
-        anglex += float(x - lastClick[0]);
-        angley += float(y - lastClick[1]);
+        anglex -= float(x - lastClick[0]);
+        angley -= float(y - lastClick[1]);
+    }
+    if (translate and left_pressed){
+        translatex += float(x - lastClick[0]) / currViewportSize[0];
+        translatey -= float(y - lastClick[1]) / currViewportSize[1];
+    }
+    if(left_pressed){
         lastClick[0] = x;
         lastClick[1] = y;
     }
@@ -152,9 +138,10 @@ void keyboardCtrl(unsigned char key, int x, int y){
             verbose = !verbose;
             break;
         case 'r':
-            axis = 0;
-            anglex = angley = 0.0;
-            bckgrndColor[0] = bckgrndColor[1] = bckgrndColor[2] = 0.0;
+            axis = translate = 0;
+            bckgrndColor[0] = bckgrndColor[1] = bckgrndColor[2] = anglex = angley = 0.0;
+            translatex = -0.90;
+            translatey = -0.15;
             break;
         case 'x':
             axis = !axis;
@@ -167,7 +154,7 @@ void keyboardCtrl(unsigned char key, int x, int y){
     glutPostRedisplay();
 }
 
-void drawFloor(){
+void displayFloor(){
     glBegin(GL_QUADS);
         glColor4f(0.44,0.95,0.46,1.0);
         glVertex3f(-0.75, -0.4, -0.75);
@@ -199,23 +186,23 @@ void displayModel(Model a, GLfloat size, GLfloat x, GLfloat y, GLfloat z){
     xcentral = (xmin+xmax)/2;
     ycentral = (ymin+ymax)/2;
     zcentral = (zmin+zmax)/2;
-    // if(first) mz = zcentral;
 
     scalemodel = abs(abs(ymax) - abs(ymin));
     // if (scalemodel < abs(xmax - xmin)) scalemodel = abs(xmax - xmin);
     if (scalemodel < abs(zmax - zmin)) scalemodel = abs(zmax - zmin);
     scalemodel = size/scalemodel;
 
+    float auxx = scalemodel * (xmax-xmin);
+    float auxy = scalemodel * (ymax-ymin);
+    float auxz = scalemodel * (zmax-zmin);
+
+    // printf("%s %f %f %f\n", "model_size", auxx, auxy, auxz);
+
     glPushMatrix();
         // we scale model to the desired total size
         glTranslatef(0,0,0);
         glTranslatef(x,y,z);
-
         // rotations applied to the model
-        // glRotatef(-90, 1.0, 0.0, 0.0);
-        // glRotatef(90, 0.0, 1.0, 0.0);
-        // glRotatef(90, 0.0, 0.0, 1.0);
-
         glScalef(scalemodel,scalemodel,scalemodel);
         // we translate the model to be drawn in the (0,0,0)
         glTranslatef(-xcentral,-ycentral,-zcentral);
@@ -223,10 +210,10 @@ void displayModel(Model a, GLfloat size, GLfloat x, GLfloat y, GLfloat z){
     glBegin(GL_TRIANGLES);
         for(int i = 0; i < a.faces().size(); ++i){
             const Face &f = a.faces()[i];
-            glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*) &Materials[f.mat].ambient);
-            glMaterialfv(GL_FRONT, GL_DIFFUSE, (GLfloat*) &Materials[f.mat].diffuse);
-            glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*) &Materials[f.mat].specular);
-            glMaterialfv(GL_FRONT, GL_SHININESS, (GLfloat*) &Materials[f.mat].shininess);
+            // glMaterialfv(GL_FRONT, GL_AMBIENT, (GLfloat*) &Materials[f.mat].ambient);
+            // glMaterialfv(GL_FRONT, GL_DIFFUSE, (GLfloat*) &Materials[f.mat].diffuse);
+            // glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*) &Materials[f.mat].specular);
+            // glMaterialfv(GL_FRONT, GL_SHININESS, (GLfloat*) &Materials[f.mat].shininess);
 
             if(f.n.size() == 0) {
                     glNormal3dv(a.faces()[i].normalC);
@@ -254,25 +241,20 @@ void displayCone(GLfloat radius, GLfloat height, GLfloat x, GLfloat y, GLfloat z
     glPushMatrix();
         glTranslatef(x,y,z);
         glRotatef( 90.0, 0.0, 1.0, 0.0 );
-        glScalef(radius,radius,height);
         glColor4f(1.0, 0.47, 0.12, 1.0);
-        glutSolidCone(1,1,48,48);
+        glutSolidCone(radius,height,48,48);
     glPopMatrix();
 }
 
 void displaySnowMan(){
     glPushMatrix();
-        // glTranslatef(x,y,z);
-        // glRotatef( -90.0, 1.0, 0.0, 0.0 );
-        // glScalef(radius,radius,height);
         glColor4f(1.0, 1.0, 1.0, 1.0);
-        // glutSolidCone(1,1,48,48);
         glutSolidSphere(0.4, 40, 40);
         glPushMatrix();
             glTranslatef(0.0,0.6,0.0);
             glutSolidSphere(0.2, 40, 40);
         glPopMatrix();
-        displayCone(0.1, 0.6, 0.1,0.6,0.0);
+        displayCone(0.1, 0.2, 0.1,0.6,0.0);
     glPopMatrix();
 }
 
@@ -287,26 +269,20 @@ void refresh(void){
     glRotatef(anglex,0.0,1.0,0.0);
     glRotatef(angley,1.0,0.0,0.0);
 
-    glColor4f(0.0, 0.0, 1.0, 1.0);
-    // displayModel(legoman, 0.5, -0.75, -0.15, -0.75);
-    displayModel(legoman, 0.5, -0.97, -0.15, -0.65);
+    glPushMatrix();
+        glColor4f(1.0, 1.0, 0.0, 1.0);
+        displayModel(legoman, 0.5, translatex, translatey, -0.67);
+    glPopMatrix();
 
     glPushMatrix();
         glRotatef(90.0,0.0,0.0,1.0);
-        glTranslatef(0.0, -0.4, 0.0);
+        glTranslatef(0.0, -0.2, 0.0);
         displaySnowMan();
     glPopMatrix();
 
-    glColor4f(1.0, 0.0, 1.0, 1.0);
-    glPushMatrix();
-        glTranslatef(-0.75, -0.4, -0.75);
-        glutWireSphere(0.01, 40, 40);
-    glPopMatrix();
 
     glColor4f(1.0, 1.0, 1.0, 1.0);
-
-    // glutWireTeapot(0.5);
-    drawFloor();
+    displayFloor();
 
 
     if (axis) drawAxis(100.0, 1.0);
@@ -325,7 +301,6 @@ int main(int argc, char const *argv[]){
     glutCreateWindow("Bloque 2: Luis García Estrades Grupo: 13");
 
 
-    legoman.load("../models/legoman.obj");
     //callbacks
     glutDisplayFunc(refresh);
     glutReshapeFunc(resize);
@@ -334,13 +309,13 @@ int main(int argc, char const *argv[]){
     glutKeyboardFunc(keyboardCtrl);
 
     displayHelp();
+    legoman.load("legoman.obj");
 
     // Set up depth testing.
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_NORMALIZE);
 
-    //bucle, procesamiento de eventos
     glutMainLoop();
     return 0;
 }
