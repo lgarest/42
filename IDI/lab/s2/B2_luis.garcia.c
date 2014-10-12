@@ -19,7 +19,7 @@ bool teapot = true;
 bool translate = false;
 GLfloat anglex = 0.0;
 GLfloat angley = 0.0;
-GLfloat translatex = -0.90;
+GLfloat translatex = -0.60;
 GLfloat translatey = -0.15;
 Model legoman;
 
@@ -43,6 +43,7 @@ void displayHelp(){
     printf("**************************************************************\n");
     printf("* %s \n", "Bloque 2 Luis Garcia Estrades grupo:13");
     printf("* %s \n", "'x' para mostrar/ocultar los ejes");
+    printf("* %s \n", "'c' para cambiar entre rotacion de cámara y traslación del lego sobre las X");
     printf("* %s \n", "'r' para resetear");
     printf("* %s \n", "'q' o 'esc' para cerrar el programa");
     printf("* %s \n", "'h' para mostrar esta ayuda");
@@ -140,7 +141,7 @@ void keyboardCtrl(unsigned char key, int x, int y){
         case 'r':
             axis = translate = 0;
             bckgrndColor[0] = bckgrndColor[1] = bckgrndColor[2] = anglex = angley = 0.0;
-            translatex = -0.90;
+            translatex = -0.60;
             translatey = -0.15;
             break;
         case 'x':
@@ -192,10 +193,9 @@ void displayModel(Model a, GLfloat size, GLfloat x, GLfloat y, GLfloat z){
     if (scalemodel < abs(zmax - zmin)) scalemodel = abs(zmax - zmin);
     scalemodel = size/scalemodel;
 
-    float auxx = scalemodel * (xmax-xmin);
-    float auxy = scalemodel * (ymax-ymin);
-    float auxz = scalemodel * (zmax-zmin);
-
+    // float auxx = scalemodel * (xmax-xmin);
+    // float auxy = scalemodel * (ymax-ymin);
+    // float auxz = scalemodel * (zmax-zmin);
     // printf("%s %f %f %f\n", "model_size", auxx, auxy, auxz);
 
     glPushMatrix();
@@ -203,6 +203,7 @@ void displayModel(Model a, GLfloat size, GLfloat x, GLfloat y, GLfloat z){
         glTranslatef(0,0,0);
         glTranslatef(x,y,z);
         // rotations applied to the model
+        glRotatef(180.,0.0,1.0,0.0);
         glScalef(scalemodel,scalemodel,scalemodel);
         // we translate the model to be drawn in the (0,0,0)
         glTranslatef(-xcentral,-ycentral,-zcentral);
@@ -215,23 +216,25 @@ void displayModel(Model a, GLfloat size, GLfloat x, GLfloat y, GLfloat z){
             // glMaterialfv(GL_FRONT, GL_SPECULAR, (GLfloat*) &Materials[f.mat].specular);
             // glMaterialfv(GL_FRONT, GL_SHININESS, (GLfloat*) &Materials[f.mat].shininess);
 
+            glColor4fv (Materials[f.mat].diffuse);
+
             if(f.n.size() == 0) {
-                    glNormal3dv(a.faces()[i].normalC);
-                    glVertex3dv(&a.vertices()[f.v[0]]);
-                    glVertex3dv(&a.vertices()[f.v[1]]);
-                    glVertex3dv(&a.vertices()[f.v[2]]);
-                }
-                // Otherwise we render the normals from each vertex.
-                else{
-                    glNormal3dv(&a.normals()[f.n[0]]);
-                    glVertex3dv(&a.vertices()[f.v[0]]);
+                glNormal3dv(a.faces()[i].normalC);
+                glVertex3dv(&a.vertices()[f.v[0]]);
+                glVertex3dv(&a.vertices()[f.v[1]]);
+                glVertex3dv(&a.vertices()[f.v[2]]);
+            }
+            // Otherwise we render the normals from each vertex.
+            else{
+                glNormal3dv(&a.normals()[f.n[0]]);
+                glVertex3dv(&a.vertices()[f.v[0]]);
 
-                    glNormal3dv(&a.normals()[f.n[1]]);
-                    glVertex3dv(&a.vertices()[f.v[1]]);
+                glNormal3dv(&a.normals()[f.n[1]]);
+                glVertex3dv(&a.vertices()[f.v[1]]);
 
-                    glNormal3dv(&a.normals()[f.n[2]]);
-                    glVertex3dv(&a.vertices()[f.v[2]]);
-                }
+                glNormal3dv(&a.normals()[f.n[2]]);
+                glVertex3dv(&a.vertices()[f.v[2]]);
+            }
         }
     glEnd();
     glPopMatrix();
@@ -270,13 +273,11 @@ void refresh(void){
     glRotatef(angley,1.0,0.0,0.0);
 
     glPushMatrix();
-        glColor4f(1.0, 1.0, 0.0, 1.0);
+        // glColor4f(1.0, 1.0, 0.0, 1.0);
         displayModel(legoman, 0.5, translatex, translatey, -0.67);
     glPopMatrix();
 
     glPushMatrix();
-        glRotatef(90.0,0.0,0.0,1.0);
-        glTranslatef(0.0, -0.2, 0.0);
         displaySnowMan();
     glPopMatrix();
 
