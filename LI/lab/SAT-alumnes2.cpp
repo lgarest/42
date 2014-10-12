@@ -91,45 +91,50 @@ void setLiteralToTrue(int lit)
 	// for (int i = 0; i < model.size(); ++i) cout << model[i] << endl;
 }
 
-// SEE
+
 bool propagateGivesConflict()
 	// Returns if the propagation gives conflict
 {
 	// cout << "** propagateGivesConflict" << endl;
+	cout << "modelStack.size: "<< modelStack.size()<<endl;
+	cout << "____INDEXOFNEXTLITTOPROPAGATE: " << indexOfNextLitToPropagate << endl;
 	int lastUndefLit;
 	while ( indexOfNextLitToPropagate < modelStack.size() ) {
-		cout << "modelStack: ";
-		for (int i = 0; i < modelStack.size(); ++i){
-			cout << modelStack[i] << " ";
-		}
-		cout << endl;
-		cout << "____INDEXOFNEXTLITTOPROPAGATE: " << indexOfNextLitToPropagate << endl;
+		cout << "propaga" << endl;
 		++indexOfNextLitToPropagate;
+		// last decision taken
+		int lastDecision = modelStack[indexOfNextLitToPropagate -1];
+		int n;
 
-		for (uint i = 0; i < numClauses; ++i) {
+		// if the last decision is positive we only have to look where it appears as a negative value
+		if (lastDecision > 0) n = visit[abs(lastDecision)].n.size();
+		// if the last decision is negative we only have to look where it appears as a positive value
+		else n = visit[abs(lastDecision)].p.size();
+
+
+		for (uint i = 0; i < n; ++i) {
 			bool someLitTrue = false;
 			int numUndefs = 0;
 			int lastLitUndef = 0;
 
-			for (uint k = 0; not someLitTrue and k < clauses[i].size(); ++k){
-				int val = currentValueInModel(clauses[i][k]);
-				// cout << "lit,value "<<clauses[i][k]<<","<<val << endl;
+			int m;
+	      	if (lastDecision > 0) m = visit[abs(lastDecision)].n[i];
+	      	else m = visit[abs(lastDecision)].p[i];
+
+	      	// For each clausule where the literal is negated, we look the value of the clausule
+			for (uint k = 0; not someLitTrue and k < clauses[m].size(); ++k){
+				int val = currentValueInModel(clauses[m][k]);
 				if (val == TRUE) someLitTrue = true;
 				else if (val == UNDEF){
 				 	++numUndefs;
-				 	lastLitUndef = clauses[i][k];
+				 	lastLitUndef = clauses[m][k];
 				}
 			}
-			// cout << numUndefs<<","<<endl;
 
 			if (not someLitTrue and numUndefs == 0)
-				{cout << "Return TRUE" << endl;return true; // conflict! all lits false
-					}
-			// if there is no conflict, propagates to true
-			else if (not someLitTrue and numUndefs == 1){
-				cout << "____PROPAGATIONLIT: " << lastLitUndef << endl;
-				setLiteralToTrue(lastLitUndef);
-			}
+				{return true; // conflict! all lits false
+					cout << "Return TRUE" << endl;}
+			else if (not someLitTrue and numUndefs == 1) setLiteralToTrue(lastLitUndef);
 		}
 	}
 	cout << "Return FALSE" << endl;
