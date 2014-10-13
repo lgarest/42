@@ -24,11 +24,24 @@ struct key
 };
 
 // for each literal indicates in which clauses appears as positive and in which ones as negative
-vector<key> visit;
+vector<key> appearsInClause;
 
 // for each literal measures the # of apparitions and its value [1..numVars]
-vector<pair<int,int> > apparition;
+// [_[2:2] [5:2] [6:2] [1:1] [3:1] [4:1] [0:0]_]
+vector<pair<int,int> > litCounter;
 uint decisionPoint;
+
+void printAppearsInClause(){
+	for (int i = 0; i < appearsInClause.size(); ++i){
+		cout << i << "*" << endl << "    +: ";
+		for (int j = 0; j < appearsInClause[i].p.size(); ++j)
+			cout << appearsInClause[i].p[j] << " ";
+		cout << endl << "    -: ";
+		for (int j = 0; j < appearsInClause[i].n.size(); ++j)
+			cout << appearsInClause[i].n[j] << " ";
+		cout << endl;
+	}
+}
 
 void readClauses()
 	// Reads the # variables, # of clausules and the clausules themselves
@@ -41,8 +54,8 @@ void readClauses()
 	string aux;
 	cin >> aux >> numVars >> numClauses;
 	clauses.resize(numClauses);
-	visit.resize(numVars + 1);
-	apparition.resize(numVars + 1, pair<int, int>(0, 0));
+	appearsInClause.resize(numVars + 1);
+	litCounter.resize(numVars + 1, pair<int, int>(0, 0));
 	// Read clauses
 	for (uint i = 0; i < numClauses; ++i) {
 		int lit;
@@ -50,13 +63,13 @@ void readClauses()
 			clauses[i].push_back(lit);
 
 			// we store the literal
-			apparition[abs(lit)].first = abs(lit);
+			litCounter[abs(lit)].first = abs(lit);
 			// increment # of apparitions of the literal
-			apparition[abs(lit)].second++;
+			litCounter[abs(lit)].second++;
 
 			// store the apparition of the literal in the clausule in the visit vector
-			if (lit > 0) visit[lit].p.push_back(i);
-			else visit[-lit].n.push_back(i);
+			if (lit > 0) appearsInClause[lit].p.push_back(i);
+			else appearsInClause[-lit].n.push_back(i);
 		}
 	}
 	// for (int i = 0; i < clauses.size(); ++i){
@@ -64,7 +77,10 @@ void readClauses()
 	//     cout << clauses[i][j] << ' ';
 	//   cout << endl;
 	// }
+	printAppearsInClause();
 }
+
+
 
 
 int currentValueInModel(int lit)
@@ -95,31 +111,32 @@ void setLiteralToTrue(int lit)
 bool propagateGivesConflict()
 	// Returns if the propagation gives conflict
 {
-	// cout << "** propagateGivesConflict" << endl;
-	cout << "modelStack.size: "<< modelStack.size()<<endl;
-	cout << "____INDEXOFNEXTLITTOPROPAGATE: " << indexOfNextLitToPropagate << endl;
 	int lastUndefLit;
 	while ( indexOfNextLitToPropagate < modelStack.size() ) {
-		cout << "propaga" << endl;
+		cout << "\nmodelStack: ";
+		for (int i = 0; i < modelStack.size(); ++i) cout << modelStack[i] << " ";
+		cout << endl;
 		++indexOfNextLitToPropagate;
 		// last decision taken
-		int lastDecision = modelStack[indexOfNextLitToPropagate -1];
+		int lastDecision = modelStack[indexOfNextLitToPropagate - 1];
 		int n;
 
 		// if the last decision is positive we only have to look where it appears as a negative value
-		if (lastDecision > 0) n = visit[abs(lastDecision)].n.size();
+		if (lastDecision > 0) n = appearsInClause[abs(lastDecision)].n.size();
 		// if the last decision is negative we only have to look where it appears as a positive value
-		else n = visit[abs(lastDecision)].p.size();
+		else n = appearsInClause[abs(lastDecision)].p.size();
+		cout << "____n: " <<  n << endl;
 
-
+		// iterates over positive or negative clausules
 		for (uint i = 0; i < n; ++i) {
 			bool someLitTrue = false;
 			int numUndefs = 0;
 			int lastLitUndef = 0;
 
 			int m;
-	      	if (lastDecision > 0) m = visit[abs(lastDecision)].n[i];
-	      	else m = visit[abs(lastDecision)].p[i];
+	      	if (lastDecision > 0) m = appearsInClause[abs(lastDecision)].n[i];
+	      	else m = appearsInClause[abs(lastDecision)].p[i];
+	      	cout << "____m: " <<  m << endl;
 
 	      	// For each clausule where the literal is negated, we look the value of the clausule
 			for (uint k = 0; not someLitTrue and k < clauses[m].size(); ++k){
@@ -198,9 +215,10 @@ bool cmp(pair<int, int> a, pair<int, int> b)
 int main(){
 	readClauses(); // reads numVars, numClauses and clauses
 	// we sort the literals by its # of apparitions
-	sort(apparition.begin(), apparition.end(), cmp);
-	cout << "apparitions:" << endl;
-	for (int i = 0; i < apparition.size(); ++i) cout << apparition[i].first << " " << apparition[i].second <<endl;
+	sort(litCounter.begin(), litCounter.end(), cmp);
+	cout << "litCounter:" << endl;
+	for (int i = 0; i < litCounter.size(); ++i) cout << litCounter[i].first << ":" << litCounter[i].second << "  ";
+	cout << endl;
 	model.resize(numVars+1,UNDEF);
 	indexOfNextLitToPropagate = 0;
 	decisionLevel = 0;

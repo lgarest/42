@@ -91,19 +91,18 @@ void setLiteralToTrue(int lit)
 	// for (int i = 0; i < model.size(); ++i) cout << model[i] << endl;
 }
 
-// SEE
 bool propagateGivesConflict()
 	// Returns if the propagation gives conflict
 {
 	// cout << "** propagateGivesConflict" << endl;
 	int lastUndefLit;
 	while ( indexOfNextLitToPropagate < modelStack.size() ) {
-		cout << "modelStack: ";
-		for (int i = 0; i < modelStack.size(); ++i){
-			cout << modelStack[i] << " ";
-		}
-		cout << endl;
-		cout << "____INDEXOFNEXTLITTOPROPAGATE: " << indexOfNextLitToPropagate << endl;
+		// cout << "modelStack: ";
+		// for (int i = 0; i < modelStack.size(); ++i){
+			// cout << modelStack[i] << " ";
+		// }
+		// cout << endl;
+		// cout << "____INDEXOFNEXTLITTOPROPAGATE: " << indexOfNextLitToPropagate << endl;
 		++indexOfNextLitToPropagate;
 
 		for (uint i = 0; i < numClauses; ++i) {
@@ -113,26 +112,28 @@ bool propagateGivesConflict()
 
 			for (uint k = 0; not someLitTrue and k < clauses[i].size(); ++k){
 				int val = currentValueInModel(clauses[i][k]);
-				// cout << "lit,value "<<clauses[i][k]<<","<<val << endl;
-				if (val == TRUE) someLitTrue = true;
+				// cout << "lit,val "<<clauses[i][k]<<","<<val << endl;
+				if (val == TRUE) {someLitTrue = true;cout << "someLitTrue";}
 				else if (val == UNDEF){
 				 	++numUndefs;
 				 	lastLitUndef = clauses[i][k];
+				 	// cout << "numUndefs,lastLitUndef "<< numUndefs<<","<<lastLitUndef << endl;
 				}
 			}
 			// cout << numUndefs<<","<<endl;
 
-			if (not someLitTrue and numUndefs == 0)
-				{cout << "Return TRUE" << endl;return true; // conflict! all lits false
-					}
+			if (not someLitTrue and numUndefs == 0) {
+				// cout << "Return TRUE" << endl;
+				return true; // conflict! all lits false
+			}
 			// if there is no conflict, propagates to true
 			else if (not someLitTrue and numUndefs == 1){
-				cout << "____PROPAGATIONLIT: " << lastLitUndef << endl;
+				// cout << "____PROPAGATIONLIT: " << lastLitUndef << endl;
 				setLiteralToTrue(lastLitUndef);
 			}
 		}
 	}
-	cout << "Return FALSE" << endl;
+	// cout << "Return FALSE" << endl;
 	return false;
 }
 

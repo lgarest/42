@@ -3,7 +3,7 @@ O=-O3
 FILE=SAT-alumnes
 FILE2=SAT-alumnes2
 
-all: clear sat sat2 exe
+all: clear sat sat2 exe2
 
 clear:
 	clear
