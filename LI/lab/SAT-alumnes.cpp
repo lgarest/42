@@ -85,10 +85,6 @@ void setLiteralToTrue(int lit)
 	modelStack.push_back(lit);
 	if (lit > 0) model[lit] = TRUE;
 	else model[-lit] = FALSE;
-	// cout << "modelStack:" << endl;
-	// for (int i = 0; i < modelStack.size(); ++i) cout << modelStack[i] << endl;
-	// cout << "model:" << endl;
-	// for (int i = 0; i < model.size(); ++i) cout << model[i] << endl;
 }
 
 bool propagateGivesConflict()
@@ -96,6 +92,7 @@ bool propagateGivesConflict()
 {
 	// cout << "** propagateGivesConflict" << endl;
 	int lastUndefLit;
+	// mientras el index del siguiente lit a propagar sea menor al modelStack
 	while ( indexOfNextLitToPropagate < modelStack.size() ) {
 		// cout << "modelStack: ";
 		// for (int i = 0; i < modelStack.size(); ++i){
@@ -105,11 +102,13 @@ bool propagateGivesConflict()
 		// cout << "____INDEXOFNEXTLITTOPROPAGATE: " << indexOfNextLitToPropagate << endl;
 		++indexOfNextLitToPropagate;
 
+		// iteramos sobre las clausulas
 		for (uint i = 0; i < numClauses; ++i) {
 			bool someLitTrue = false;
 			int numUndefs = 0;
 			int lastLitUndef = 0;
 
+			// mientras no haya un lit a true
 			for (uint k = 0; not someLitTrue and k < clauses[i].size(); ++k){
 				int val = currentValueInModel(clauses[i][k]);
 				// cout << "lit,val "<<clauses[i][k]<<","<<val << endl;
@@ -215,20 +214,11 @@ int main(){
 	// Davis-Putnam-Loveland-Logemann
 	while (true) {
 		while ( propagateGivesConflict() ) {
-			cout << endl<<"__" << endl;
-			// si hemos vuelto al principio
 			if ( decisionLevel == 0) {cout << "UNSATISFIABLE" << endl; return 10; }
-			backtrack(); // o backjump
+			backtrack();
 		}
-
 		int decisionLit = getNextDecisionLiteral();
-		cout <<"____DECISIONLIT: " <<decisionLit << endl;
-		if (decisionLit == 0) { checkmodel(); cout << "SATISFIABLE" << endl;
-			// for (int i = 0; i < model.size(); ++i){
-			//   cout << i <<":" <<model[i] << " ";
-			// }
-			return 20;
-		}
+		if (decisionLit == 0) { checkmodel(); cout << "SATISFIABLE" << endl; return 20; }
 		// start new decision level:
 		modelStack.push_back(0);  // push mark indicating new DL
 		++indexOfNextLitToPropagate;

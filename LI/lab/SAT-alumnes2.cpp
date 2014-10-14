@@ -29,7 +29,7 @@ vector<key> appearsInClause;
 // for each literal measures the # of apparitions and its value [1..numVars]
 // [_[2:2] [5:2] [6:2] [1:1] [3:1] [4:1] [0:0]_]
 vector<pair<int,int> > litCounter;
-uint decisionPoint;
+uint decisionIterator;
 
 void printAppearsInClause(){
 	for (int i = 0; i < appearsInClause.size(); ++i){
@@ -43,8 +43,21 @@ void printAppearsInClause(){
 	}
 }
 
+void printModelStack(){
+	cout << "\nmodelStack: ";
+	for (int i = 0; i < modelStack.size(); ++i) cout << modelStack[i] << " ";
+	cout << endl;
+}
+
+void printLitCounter(){
+	cout << "litCounter:" << endl;
+	for (int i = 0; i < litCounter.size(); ++i)
+		cout << litCounter[i].first << ":" << litCounter[i].second << "  ";
+	cout << endl;
+}
+
 void readClauses()
-	// Reads the # variables, # of clausules and the clausules themselves
+// Reads the # variables, # of clausules and the clausules themselves
 {
 	// cout << "** readClauses" << endl;
 	// Skip comments
@@ -72,19 +85,13 @@ void readClauses()
 			else appearsInClause[-lit].n.push_back(i);
 		}
 	}
-	// for (int i = 0; i < clauses.size(); ++i){
-	//   for (int j = 0; j < clauses[i].size(); ++j)
-	//     cout << clauses[i][j] << ' ';
-	//   cout << endl;
-	// }
-	printAppearsInClause();
+	// printAppearsInClause();
 }
 
 
 
 
 int currentValueInModel(int lit)
-// SAME
 // Returns the value of the literal inside the model
 {
 	if (lit >= 0) return model[lit];
@@ -96,7 +103,6 @@ int currentValueInModel(int lit)
 
 
 void setLiteralToTrue(int lit)
-// SAME
 {
 	modelStack.push_back(lit);
 	if (lit > 0) model[lit] = TRUE;
@@ -109,59 +115,57 @@ void setLiteralToTrue(int lit)
 
 
 bool propagateGivesConflict()
-	// Returns if the propagation gives conflict
+// Returns if the propagation gives conflict
 {
 	int lastUndefLit;
 	while ( indexOfNextLitToPropagate < modelStack.size() ) {
-		cout << "\nmodelStack: ";
-		for (int i = 0; i < modelStack.size(); ++i) cout << modelStack[i] << " ";
-		cout << endl;
 		++indexOfNextLitToPropagate;
 		// last decision taken
 		int lastDecision = modelStack[indexOfNextLitToPropagate - 1];
-		int n;
+
+		// clausesVectorSize == the size of the vector that includes in which clauses the lit appears (as a negative or positive value)
+		int clausesVectorSize;
 
 		// if the last decision is positive we only have to look where it appears as a negative value
-		if (lastDecision > 0) n = appearsInClause[abs(lastDecision)].n.size();
-		// if the last decision is negative we only have to look where it appears as a positive value
-		else n = appearsInClause[abs(lastDecision)].p.size();
-		cout << "____n: " <<  n << endl;
+		if (lastDecision > 0) clausesVectorSize = appearsInClause[abs(lastDecision)].n.size();
 
-		// iterates over positive or negative clausules
-		for (uint i = 0; i < n; ++i) {
+		// if the last decision is negative we only have to look where it appears as a positive value
+		else clausesVectorSize = appearsInClause[abs(lastDecision)].p.size();
+
+		// iterates over the positive or negative clausules vector
+		for (uint i = 0; i < clausesVectorSize; ++i) {
 			bool someLitTrue = false;
 			int numUndefs = 0;
 			int lastLitUndef = 0;
 
-			int m;
-	      	if (lastDecision > 0) m = appearsInClause[abs(lastDecision)].n[i];
-	      	else m = appearsInClause[abs(lastDecision)].p[i];
-	      	cout << "____m: " <<  m << endl;
+			// clauseIter == iterates over the positive or negative clauses vector where the lit appears
+			int clauseIter;
+	      	if (lastDecision > 0)
+	      		clauseIter = appearsInClause[abs(lastDecision)].n[i];
+	      	else clauseIter = appearsInClause[abs(lastDecision)].p[i];
 
 	      	// For each clausule where the literal is negated, we look the value of the clausule
-			for (uint k = 0; not someLitTrue and k < clauses[m].size(); ++k){
-				int val = currentValueInModel(clauses[m][k]);
+			for (uint k = 0; not someLitTrue and k < clauses[clauseIter].size(); ++k){
+				int val = currentValueInModel(clauses[clauseIter][k]);
 				if (val == TRUE) someLitTrue = true;
 				else if (val == UNDEF){
 				 	++numUndefs;
-				 	lastLitUndef = clauses[m][k];
+				 	lastLitUndef = clauses[clauseIter][k];
 				}
 			}
 
 			if (not someLitTrue and numUndefs == 0)
-				{return true; // conflict! all lits false
-					cout << "Return TRUE" << endl;}
-			else if (not someLitTrue and numUndefs == 1) setLiteralToTrue(lastLitUndef);
+				return true; // conflict! all lits false
+			else if (not someLitTrue and numUndefs == 1)
+				setLiteralToTrue(lastLitUndef);
 		}
 	}
-	cout << "Return FALSE" << endl;
 	return false;
 }
 
 
 // backtrack func
 void backtrack(){
-	cout << "** backtrack" << endl;
 	uint i = modelStack.size() -1;
 	int lit = 0;
 	while (modelStack[i] != 0){ // 0 is the DL mark
@@ -173,6 +177,8 @@ void backtrack(){
 	// at this point, lit is the last decision
 	modelStack.pop_back(); // remove the DL mark
 	--decisionLevel;
+	// decrement the iterator of the litCounter vector to get the next decision literal
+	--decisionIterator;
 	indexOfNextLitToPropagate = modelStack.size();
 	setLiteralToTrue(-lit);  // reverse last decision
 }
@@ -182,14 +188,19 @@ int getNextDecisionLiteral()
 	// Heuristic for finding the next decision literal
 	// Preference given to literals with more appearances
 {
-	for (uint i = 1; i <= numVars; ++i) // stupid heuristic:
-		if (model[i] == UNDEF) return i;  // returns first UNDEF var, positively
-
+	for (uint i = 0; i < numVars; ++i){
+		if (model[litCounter[i].first] == UNDEF){
+			decisionIterator++;
+			// cout << "__NextDecisionLiteral:" << litCounter[i].first << endl;
+      		// cout << "____ decisionIterator is now: ";
+      		// cout <<  decisionIterator << endl;
+			return litCounter[i].first;
+		}
+	}
 	return 0; // reurns 0 when all literals are defined
 }
 
 void checkmodel()
-// SAME
 // checks if the model is correct
 {
 	for (int i = 0; i < numClauses; ++i){
@@ -216,13 +227,10 @@ int main(){
 	readClauses(); // reads numVars, numClauses and clauses
 	// we sort the literals by its # of apparitions
 	sort(litCounter.begin(), litCounter.end(), cmp);
-	cout << "litCounter:" << endl;
-	for (int i = 0; i < litCounter.size(); ++i) cout << litCounter[i].first << ":" << litCounter[i].second << "  ";
-	cout << endl;
 	model.resize(numVars+1,UNDEF);
 	indexOfNextLitToPropagate = 0;
 	decisionLevel = 0;
-	decisionPoint = 0;
+	decisionIterator = 0;
 
 	// Take care of initial unit clauses, if any
 	for (uint i = 0; i < numClauses; ++i)
@@ -237,14 +245,13 @@ int main(){
 	// Davis-Putnam-Loveland-Logemann
 	while (true) {
 		while ( propagateGivesConflict() ) {
-			cout << endl<<"__" << endl;
 			// si hemos vuelto al principio
 			if ( decisionLevel == 0) {cout << "UNSATISFIABLE" << endl; return 10; }
 			backtrack(); // o backjump
 		}
 
 		int decisionLit = getNextDecisionLiteral();
-		cout <<"____DECISIONLIT: " <<decisionLit << endl;
+		// cout <<"____DECISIONLIT: " <<decisionLit << endl;
 		if (decisionLit == 0) { checkmodel(); cout << "SATISFIABLE" << endl;
 			// for (int i = 0; i < model.size(); ++i){
 			//   cout << i <<":" <<model[i] << " ";
