@@ -2,7 +2,7 @@
 
 #include <GL/gl.h>
 #include <GL/freeglut.h>
-#include "../models/model.h"
+#include "model.h"
 
 
 GLfloat ASPECT_RATIO = 1.0;

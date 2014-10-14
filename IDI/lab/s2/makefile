@@ -1,9 +1,9 @@
 CC=g++
 CFLAGS=-lglut -lGL
 FILENAME=B2_luis.garcia
-MODEL=../models/model.cpp
+MODEL=model.cpp
 
-all: bloque1 exe
+all: bloque1
 
 bloque1: $(FILENAME).c
 	$(CC) -o $(FILENAME).exe $(FILENAME).c $(MODEL) $(CFLAGS)
