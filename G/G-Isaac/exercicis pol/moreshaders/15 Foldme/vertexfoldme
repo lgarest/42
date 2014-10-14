@@ -1,0 +1,19 @@
+// simple vertex shader
+
+uniform float time;
+
+void main()
+{
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+	float vphi = -time*gl_TexCoord[0].s;
+	vec3 v1 = vec3(cos(vphi),0,sin(vphi));
+	vec3 v2 = vec3(0.0,1.0,0.0);
+	vec3 v3 = vec3(-sin(vphi),0,cos(vphi));
+	vec4 vertex;
+	vertex.x = v1.x*gl_Vertex.x + v1.z*gl_Vertex.z;
+	vertex.y = gl_Vertex.y;
+	vertex.z = v3.x*gl_Vertex.x + v3.z*gl_Vertex.z;
+	vertex.w = gl_Vertex.w;
+	gl_Position    = gl_ModelViewProjectionMatrix * vertex;
+	gl_FrontColor  = vec4(0.0,0.0,1.0,0.0);
+}

@@ -1,0 +1,20 @@
+// simple fragment shader
+
+uniform int n;
+
+void main()
+{
+	
+	if(int(mod(gl_FragCoord.y, n)) == 0) gl_FragColor = gl_Color;
+	else discard;
+
+/*
+	if(fract
+		((gl_FragCoord.y - fract(gl_FragCoord.y))/n)
+	== 0.0)
+		discard;
+	else 
+		
+*/
+}
+

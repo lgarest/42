@@ -1,0 +1,11 @@
+// simple vertex shader
+
+void main()
+{
+	vec4 aux    = gl_ModelViewProjectionMatrix * gl_Vertex;
+	aux.z = aux.z *-1;
+	gl_Position = aux;
+	
+	gl_FrontColor  = gl_Color;
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+}

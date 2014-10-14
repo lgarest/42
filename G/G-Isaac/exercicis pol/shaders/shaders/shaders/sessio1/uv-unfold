@@ -1,0 +1,14 @@
+// simple vertex shader
+uniform vec2 min;
+uniform vec2 max;
+void main()
+{
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+	float s = gl_TexCoord[0].s;
+	float t = gl_TexCoord[0].t;	 
+    s = (s-min.x)/(max.x-min.x)*2;
+	t = (t-min.y)/(max.y-min.y)*2;
+	gl_Position = vec4(s-1.0,t-1.0,0.0,1.0);   
+	gl_FrontColor  = gl_Color;
+	
+}

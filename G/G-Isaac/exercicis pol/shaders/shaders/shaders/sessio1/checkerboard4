@@ -1,0 +1,13 @@
+// simple fragment shader
+
+// 'time' contains seconds since the program was linked.
+uniform float time;
+uniform int n;
+void main()
+{
+	float auxs = gl_TexCoord[0].s * n;
+	float auxt = gl_TexCoord[0].t * n;
+	if(fract(auxs) <= 0.10 || fract(auxt) <= 0.10) gl_FragColor = vec4(1.0,0.0,0.0,0.0);
+	else  discard;
+	
+}

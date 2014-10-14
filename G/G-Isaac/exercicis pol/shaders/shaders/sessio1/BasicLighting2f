@@ -1,0 +1,9 @@
+// simple fragment shader
+
+uniform float time;
+varying vec4 Color;
+void main()
+{
+	
+	gl_FragColor = Color;
+}

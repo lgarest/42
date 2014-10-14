@@ -1,0 +1,13 @@
+// simple fragment shader
+
+// 'time' contains seconds since the program was linked.
+uniform float time;
+varying vec3 Vobs;
+
+void main()
+{
+	vec3 x = dFdx(Vobs);
+	vec3 y = dFdy(Vobs);
+	vec3 norm = normalize(cross(x,y));
+	gl_FragColor = gl_Color*norm.z;
+}
