@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <vector>
+#include <time.h>
 using namespace std;
 
 #define UNDEF -1
@@ -15,6 +16,8 @@ vector<int> model; // stores the model found
 vector<int> modelStack;
 uint indexOfNextLitToPropagate;
 uint decisionLevel;
+uint decisions;
+uint propagations;
 
 struct key
 	//Stores for a literal in which clauses appears with a positive value and in which with negative
@@ -107,10 +110,6 @@ void setLiteralToTrue(int lit)
 	modelStack.push_back(lit);
 	if (lit > 0) model[lit] = TRUE;
 	else model[-lit] = FALSE;
-	// cout << "modelStack:" << endl;
-	// for (int i = 0; i < modelStack.size(); ++i) cout << modelStack[i] << endl;
-	// cout << "model:" << endl;
-	// for (int i = 0; i < model.size(); ++i) cout << model[i] << endl;
 }
 
 
@@ -145,7 +144,8 @@ bool propagateGivesConflict()
 	      	else clauseIter = appearsInClause[abs(lastDecision)].p[i];
 
 	      	// For each clausule where the literal is negated, we look the value of the clausule
-			for (uint k = 0; not someLitTrue and k < clauses[clauseIter].size(); ++k){
+	      	int posornegClausesSize = clauses[clauseIter].size();
+			for (uint k = 0; not someLitTrue and k < posornegClausesSize; ++k){
 				int val = currentValueInModel(clauses[clauseIter][k]);
 				if (val == TRUE) someLitTrue = true;
 				else if (val == UNDEF){
@@ -158,6 +158,7 @@ bool propagateGivesConflict()
 				return true; // conflict! all lits false
 			else if (not someLitTrue and numUndefs == 1)
 				setLiteralToTrue(lastLitUndef);
+				++propagations;
 		}
 	}
 	return false;
@@ -191,9 +192,6 @@ int getNextDecisionLiteral()
 	for (uint i = 0; i < numVars; ++i){
 		if (model[litCounter[i].first] == UNDEF){
 			decisionIterator++;
-			// cout << "__NextDecisionLiteral:" << litCounter[i].first << endl;
-      		// cout << "____ decisionIterator is now: ";
-      		// cout <<  decisionIterator << endl;
 			return litCounter[i].first;
 		}
 	}
@@ -224,20 +222,26 @@ bool cmp(pair<int, int> a, pair<int, int> b)
 }
 
 int main(){
-	readClauses(); // reads numVars, numClauses and clauses
+	clock_t tStart = clock();
+	readClauses(); // reads numVars, numClauses and clauses themselves
 	// we sort the literals by its # of apparitions
 	sort(litCounter.begin(), litCounter.end(), cmp);
 	model.resize(numVars+1,UNDEF);
 	indexOfNextLitToPropagate = 0;
 	decisionLevel = 0;
 	decisionIterator = 0;
+	decisions = 0;
+	propagations = 0;
 
 	// Take care of initial unit clauses, if any
 	for (uint i = 0; i < numClauses; ++i)
 		if (clauses[i].size() == 1) {
 			int lit = clauses[i][0];
 			int val = currentValueInModel(lit);
-			if (val == FALSE) {cout << "UNSATISFIABLE" << endl; return 10;}
+			if (val == FALSE) {
+				double timer = (double) (clock() - tStart)/CLOCKS_PER_SEC;
+				cout << timer << " " << propagations << " " << decisions/timer << "UNSATISFIABLE" << endl;
+				return 10;}
 			else if (val == UNDEF) setLiteralToTrue(lit);
 		}
 
@@ -246,22 +250,26 @@ int main(){
 	while (true) {
 		while ( propagateGivesConflict() ) {
 			// si hemos vuelto al principio
-			if ( decisionLevel == 0) {cout << "UNSATISFIABLE" << endl; return 10; }
+			if ( decisionLevel == 0) {
+				double timer = (double) (clock() - tStart)/CLOCKS_PER_SEC;
+				cout << timer << " " << propagations << " " << decisions/timer << "UNSATISFIABLE" << endl;
+				return 10;
+			}
 			backtrack(); // o backjump
 		}
 
 		int decisionLit = getNextDecisionLiteral();
-		// cout <<"____DECISIONLIT: " <<decisionLit << endl;
-		if (decisionLit == 0) { checkmodel(); cout << "SATISFIABLE" << endl;
-			// for (int i = 0; i < model.size(); ++i){
-			//   cout << i <<":" <<model[i] << " ";
-			// }
+		if (decisionLit == 0) {
+			checkmodel();
+			double timer = (double) (clock() - tStart)/CLOCKS_PER_SEC;
+			cout << timer << " " << propagations << " " << decisions/timer << "SATISFIABLE" << endl;
 			return 20;
 		}
 		// start new decision level:
 		modelStack.push_back(0);  // push mark indicating new DL
 		++indexOfNextLitToPropagate;
 		++decisionLevel;
+		++decisions;
 		setLiteralToTrue(decisionLit);    // now push decisionLit on top of the mark
 	}
 }
