@@ -1,0 +1,38 @@
+ 1:  bar-rso lev-atm bil-bet zar-vll rma-val cel-mal sev-get mll-esp ray-gra dep-osa 
+ 2:  vll-lev esp-zar mal-mll rso-cel osa-bar val-dep get-rma gra-sev bet-ray atm-bil 
+ 3:  bet-atm zar-mal mll-rso cel-osa bar-val dep-get rma-gra ray-sev lev-esp bil-vll 
+ 4:  atm-ray vll-bet esp-bil mal-lev rso-zar osa-mll val-cel get-bar gra-dep sev-rma 
+ 5:  atm-vll bet-esp bil-mal lev-rso zar-osa mll-val cel-get bar-gra dep-sev ray-rma 
+ 6:  vll-ray esp-atm mal-bet rso-bil osa-lev val-zar get-mll gra-cel sev-bar rma-dep 
+ 7:  vll-esp atm-mal bet-rso bil-osa lev-val zar-get mll-gra cel-sev bar-rma ray-dep 
+ 8:  esp-ray mal-vll rso-atm osa-bet val-bil get-lev gra-zar sev-mll rma-cel dep-bar 
+ 9:  esp-mal vll-rso atm-osa bet-val bil-get lev-gra zar-sev mll-rma cel-dep ray-bar 
+10:  mal-ray rso-esp osa-vll gra-bil sev-lev rma-zar dep-mll bar-cel val-atm get-bet 
+11:  mal-rso esp-osa vll-val atm-get bet-gra bil-sev lev-rma zar-dep mll-bar ray-cel 
+12:  rso-ray osa-mal val-esp get-vll gra-atm sev-bet rma-bil dep-lev bar-zar cel-mll 
+13:  vll-gra atm-sev bet-rma bil-dep lev-bar zar-cel ray-mll rso-osa mal-val esp-get 
+14:  bar-bil cel-lev mll-zar osa-ray val-rso get-mal gra-esp sev-vll rma-atm dep-bet 
+15:  osa-val rso-get mal-gra esp-sev vll-rma atm-dep bet-bar bil-cel lev-mll ray-zar 
+16:  val-ray get-osa gra-rso sev-mal rma-esp dep-vll bar-atm cel-bet mll-bil zar-lev 
+17:  bet-mll bil-zar ray-lev val-get osa-gra rso-sev mal-rma esp-dep atm-cel vll-bar 
+18:  ray-get gra-val sev-osa rma-rso dep-mal bar-esp cel-vll mll-atm zar-bet lev-bil 
+19:  get-gra val-sev osa-rma rso-dep mal-bar esp-cel vll-mll atm-zar bet-lev bil-ray 
+20:  rso-bar atm-lev bet-bil vll-zar val-rma mal-cel get-sev esp-mll gra-ray osa-dep 
+21:  lev-vll zar-esp mll-mal cel-rso bar-osa dep-val rma-get sev-gra ray-bet bil-atm 
+22:  atm-bet mal-zar rso-mll osa-cel val-bar get-dep gra-rma sev-ray esp-lev vll-bil 
+23:  ray-atm bet-vll bil-esp lev-mal zar-rso mll-osa cel-val bar-get dep-gra rma-sev 
+24:  vll-atm esp-bet mal-bil rso-lev osa-zar val-mll get-cel gra-bar sev-dep rma-ray 
+25:  ray-vll atm-esp bet-mal bil-rso lev-osa zar-val mll-get cel-gra bar-sev dep-rma 
+26:  esp-vll mal-atm rso-bet osa-bil val-lev get-zar gra-mll sev-cel rma-bar dep-ray 
+27:  ray-esp vll-mal atm-rso bet-osa bil-val lev-get zar-gra mll-sev cel-rma bar-dep 
+28:  mal-esp rso-vll osa-atm val-bet get-bil gra-lev sev-zar rma-mll dep-cel bar-ray 
+29:  ray-mal esp-rso vll-osa bil-gra lev-sev zar-rma mll-dep cel-bar atm-val bet-get 
+30:  rso-mal osa-esp val-vll get-atm gra-bet sev-bil rma-lev dep-zar bar-mll cel-ray 
+31:  ray-rso mal-osa esp-val vll-get atm-gra bet-sev bil-rma lev-dep zar-bar mll-cel 
+32:  gra-vll sev-atm rma-bet dep-bil bar-lev cel-zar mll-ray osa-rso val-mal get-esp 
+33:  bil-bar lev-cel zar-mll ray-osa rso-val mal-get esp-gra vll-sev atm-rma bet-dep 
+34:  val-osa get-rso gra-mal sev-esp rma-vll dep-atm bar-bet cel-bil mll-lev zar-ray 
+35:  ray-val osa-get rso-gra mal-sev esp-rma vll-dep atm-bar bet-cel bil-mll lev-zar 
+36:  mll-bet zar-bil lev-ray get-val gra-osa sev-rso rma-mal dep-esp cel-atm bar-vll 
+37:  get-ray val-gra osa-sev rso-rma mal-dep esp-bar vll-cel atm-mll bet-zar bil-lev 
+38:  gra-get sev-val rma-osa dep-rso bar-mal cel-esp mll-vll zar-atm lev-bet ray-bil 

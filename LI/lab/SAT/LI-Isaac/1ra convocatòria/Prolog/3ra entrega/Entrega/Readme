@@ -1,0 +1,13 @@
+Per executar el Comprovador:
+
+- Substituir la sortida de Lligues.pl (comentar la linia 255 dins el displaySol i descomentar la 256)
+
+- El nom del fitxer amb la sortida de Lligues.pl ha de coincidir amb el nom de la constant FILE del Comprovador.cpp
+
+- Les restriccions escrites a "ma" (nocasa, norepes, etc.) han d'estar escrites segons la codificacio explicitada al fitxer excepcions.pl, el nom d'aquest fitxer ha de coincidir amb el nom de la constant RESTRIC del Comprovador.cpp
+
+- La constant EQUIPS i el nombre d'equips executats a Lligues.pl han de ser els mateixos
+
+
+
+

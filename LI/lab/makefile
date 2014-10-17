@@ -5,7 +5,6 @@ FILES200=random3SAT/vars-2*
 FILES300=random3SAT/vars-3*
 FILE1=SAT-alumnes
 FILE2=$(FILE1)2
-FILE3=LI-Isaac/SATSolver/SAT
 RES=misresultados
 
 all: clear sat sat2 sat3
