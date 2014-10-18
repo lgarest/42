@@ -1,0 +1,103 @@
+clear
+[H[2J./roomba.exe < inputtest.txt
+ list
+  \__position
+  |          \__400
+  |          \__10
+  \__list
+  |      \__move
+  |      |      \__right
+  |      |      \__12
+  |      \__if
+  |      |    \__==
+  |      |    |    \__sensorprox
+  |      |    |    \__ON
+  |      |    \__flush
+  |      |            \__180
+  |      \__exec
+  |      |      \__id(t1)
+  |      \__ops
+  |      |     \__ops
+  |      |     |     \__flush
+  |      |     |     |       \__180
+  |      |     |     \__ops
+  |      |     |           \__flush
+  |      |     |                   \__180
+  |      |     \__ops
+  |      |           \__flush
+  |      |           |       \__180
+  |      |           \__ops
+  |      |                 \__flush
+  |      |                         \__180
+  |      \__if
+  |           \__OR
+  |           |    \__AND
+  |           |    |     \__>
+  |           |    |     |   \__sensorlight
+  |           |    |     |   \__16
+  |           |    |     \__==
+  |           |    |          \__sensorprox
+  |           |    |          \__OFF
+  |           |    \__==
+  |           |         \__sensorlight
+  |           |         \__16
+  |           \__ops
+  |                 \__flush
+  |                 |       \__90
+  |                 \__exec
+  |                 |      \__id(t1)
+  |                 \__ops
+  |                       \__flush
+  |                       |       \__10
+  |                       \__move
+  |                              \__left
+  |                              \__10
+  \__list
+         \__TASK
+         |      \__id(t1)
+         |      \__list
+         |             \__exec
+         |             |      \__id(t2)
+         |             \__move
+         |             |      \__left
+         |             |      \__100
+         |             \__flush
+         |                     \__180
+         \__TASK
+         |      \__id(t2)
+         |      \__list
+         |             \__ops
+         |                   \__flush
+         |                   |       \__120
+         |                   \__if
+         |                        \__==
+         |                        |    \__sensorprox
+         |                        |    \__OFF
+         |                        \__move
+         |                               \__up
+         |                               \__100
+         \__TASK
+                \__id(t3)
+                \__list
+                       \__ops
+                             \__flush
+                             |       \__120
+                             \__if
+                                  \__==
+                                  |    \__sensorprox
+                                  |    \__OFF
+                                  \__ops
+                                        \__move
+                                        |      \__up
+                                        |      \__100
+                                        \__flush
+                                        |       \__10
+                                        \__ops
+                                              \__move
+                                              |      \__up
+                                              |      \__10
+                                              \__move
+                                                     \__down
+                                                     \__20
+finalposition: 400, 10
+ - 400

@@ -1,0 +1,1330 @@
+position 887 384
+startcleaning
+if  sensorprox == ON  then
+move down 493
+
+move left 363
+move left 60
+move right 541
+if  sensorprox == OFF  then
+if  sensorlight == 863 AND  sensorprox == OFF  then
+if  sensorprox == ON OR  sensorlight == 230  then
+move up 920
+
+
+
+if  sensorlight > 316  then
+ops[move up 981
+,ops[move down 997
+,move up 926
+,if  sensorprox == OFF  then
+move down 314
+
+],move right 896
+,move left 815
+,move left 365
+,move up 88
+,move up 179
+]
+move left 404
+move up 400
+move up 677
+move right 13
+move left 95
+move right 571
+ops[move right 98
+,if  sensorlight > 302 OR  sensorprox == ON  then
+move up 620
+
+,move down 32
+,if  sensorprox == ON  then
+move left 928
+
+,move down 498
+,move right 966
+,ops[move left 529
+,if  sensorprox == ON  then
+move up 369
+
+,move down 341
+,move right 724
+,move left 847
+,move left 556
+,ops[ops[move up 194
+,move up 765
+],move up 988
+,ops[if  sensorprox == OFF  then
+move left 433
+
+,if  sensorprox == ON  then
+move down 475
+
+],ops[move left 238
+,ops[move left 429
+,move up 12
+,move up 530
+,move left 405
+,move down 764
+,move right 539
+,move up 841
+,move up 819
+,move down 689
+],if  sensorlight == 325  then
+move left 471
+
+,move up 500
+,move right 645
+,move right 140
+],move right 670
+],if  sensorprox == ON  then
+move up 805
+
+,move up 623
+,move right 344
+],ops[if  sensorlight == 606  then
+move right 731
+
+]]move up 321
+move right 627
+move up 709
+if  sensorlight > 638  then
+move up 601
+
+if  sensorprox == OFF  then
+ops[ops[move down 931
+,move left 661
+],move left 982
+]
+move down 960
+ops[move right 96
+,move up 85
+,move up 685
+,if  sensorprox == OFF AND  sensorlight > 349 AND  sensorlight == 343 OR  sensorlight == 322 AND  sensorprox == OFF  then
+move up 812
+
+,if  sensorlight > 128  then
+move up 659
+
+,move down 423
+,move right 82
+,move up 293
+,if  sensorprox == ON  then
+if  sensorlight > 43  then
+ops[move right 525
+,move left 582
+,move left 733
+,move left 5
+,move up 274
+,move up 256
+,if  sensorlight == 994  then
+move left 622
+
+,move down 614
+,move left 327
+]
+
+]move right 203
+move down 785
+if  sensorlight > 909 OR  sensorlight == 304 AND  sensorlight == 755 OR  sensorprox == OFF OR  sensorprox == OFF AND  sensorprox == ON  then
+ops[move up 126
+,move up 976
+,if  sensorlight == 415 OR  sensorlight > 28  then
+ops[if  sensorprox == ON  then
+move left 44
+
+,if  sensorprox == ON OR  sensorprox == ON OR  sensorlight == 216  then
+move down 505
+
+,move down 965
+,move left 344
+,if  sensorlight == 972  then
+move left 290
+
+,ops[move left 796
+,move down 145
+,move right 391
+],move down 542
+]
+]
+move down 233
+if  sensorprox == ON OR  sensorprox == ON OR  sensorlight > 58 OR  sensorlight > 387 OR  sensorlight == 579 OR  sensorprox == OFF AND  sensorprox == ON AND  sensorlight == 215 OR  sensorlight > 480 AND  sensorprox == ON OR  sensorlight > 567 OR  sensorprox == OFF OR  sensorprox == ON  then
+move right 218
+
+move down 784
+ops[if  sensorprox == OFF AND  sensorprox == ON  then
+move right 460
+
+,ops[ops[ops[move right 494
+,move down 700
+,move left 570
+,if  sensorprox == ON  then
+move right 432
+
+,if  sensorlight == 792  then
+move down 116
+
+,if  sensorprox == ON  then
+move left 952
+
+,move up 538
+,move right 31
+],move up 82
+,move left 3
+,move up 797
+,ops[ops[move right 971
+,move left 813
+]]],if  sensorlight > 905  then
+ops[move up 858
+,move left 912
+,move up 237
+,ops[move down 564
+,move left 245
+,move right 806
+,move left 292
+,move right 956
+,move up 590
+],ops[move right 806
+,move right 823
+,move right 718
+,move right 94
+,move down 127
+,move down 487
+,move right 544
+,move down 815
+,move down 180
+],if  sensorlight > 920  then
+move right 733
+
+,if  sensorprox == ON  then
+move down 692
+
+,ops[move down 329
+,move right 292
+,move down 19
+,move left 837
+]]
+,move right 91
+,move left 905
+,move down 634
+,move up 74
+],move right 806
+,ops[move left 7
+,move up 950
+,if  sensorprox == ON  then
+move down 982
+
+,move left 37
+]]move left 519
+if  sensorlight == 380  then
+move up 985
+
+if  sensorprox == OFF OR  sensorprox == ON  then
+move down 31
+
+move right 60
+if  sensorlight > 436  then
+move left 955
+
+ops[move left 279
+,if  sensorlight > 724 OR  sensorprox == ON AND  sensorprox == OFF AND  sensorprox == ON AND  sensorprox == OFF OR  sensorprox == OFF OR  sensorlight == 172 AND  sensorlight > 17 AND  sensorprox == ON AND  sensorlight > 990 AND  sensorprox == ON AND  sensorlight == 282 OR  sensorlight > 255  then
+move down 814
+
+,move down 182
+,ops[ops[move left 488
+,move up 826
+,if  sensorprox == ON  then
+if  sensorprox == ON OR  sensorlight == 298 OR  sensorprox == ON AND  sensorprox == OFF AND  sensorlight == 212  then
+move down 87
+
+
+]],move left 991
+,move up 477
+,move down 893
+]ops[move up 491
+,move left 619
+,if  sensorlight > 622  then
+move down 889
+
+,move down 571
+,ops[if  sensorprox == ON AND  sensorprox == ON AND  sensorlight > 640  then
+ops[ops[move up 891
+,move up 200
+,move left 932
+,move left 778
+,move right 658
+,move down 953
+,move left 642
+,move right 369
+]]
+,move up 196
+,move up 267
+,move up 529
+,ops[if  sensorlight == 775  then
+move down 326
+
+,ops[if  sensorprox == OFF AND  sensorprox == ON  then
+move down 986
+
+,move right 762
+,if  sensorlight > 853  then
+move right 663
+
+],move right 218
+,ops[move up 852
+,move left 264
+,if  sensorprox == ON  then
+move left 829
+
+,move up 988
+,move right 342
+,if  sensorprox == ON  then
+move down 518
+
+],ops[if  sensorlight == 639  then
+move down 365
+
+,if  sensorlight == 876  then
+move up 142
+
+],ops[move up 171
+,move down 761
+,move right 466
+,move left 887
+,move left 970
+,if  sensorprox == OFF  then
+move down 290
+
+,move up 674
+,move left 549
+,if  sensorprox == OFF  then
+move left 950
+
+,move up 794
+],move down 961
+,ops[move down 359
+,move down 246
+,move left 991
+,move right 101
+,move right 365
+,move left 660
+,move down 845
+],ops[move left 384
+,ops[move up 305
+,move left 982
+,move left 667
+,move up 968
+]]],if  sensorlight == 869  then
+if  sensorprox == OFF  then
+move down 184
+
+
+,if  sensorprox == ON  then
+if  sensorprox == OFF OR  sensorlight > 475 AND  sensorlight > 306  then
+move right 560
+
+
+,move up 563
+,move down 281
+],if  sensorlight == 727  then
+move up 141
+
+,ops[if  sensorprox == OFF  then
+move right 906
+
+,ops[ops[move down 668
+],move left 181
+],move up 900
+,ops[move up 570
+,move down 711
+,move left 434
+,if  sensorprox == ON AND  sensorlight > 743  then
+move down 516
+
+,move down 187
+],move down 635
+,if  sensorprox == ON  then
+ops[if  sensorlight == 125  then
+move left 260
+
+,ops[move down 713
+,move up 706
+,move left 734
+,move left 735
+],move left 436
+,ops[move left 451
+,move down 803
+,move down 563
+,move down 611
+,move up 961
+,move down 912
+,move left 830
+,move up 817
+,move right 822
+,move left 606
+],move up 362
+,ops[move down 701
+,move left 883
+,move left 900
+,move right 590
+,move right 354
+,move right 949
+,move right 37
+,move up 108
+],if  sensorprox == OFF  then
+move right 481
+
+,move left 355
+,if  sensorlight > 318  then
+move down 932
+
+,move up 166
+]
+,ops[move right 996
+,move down 296
+,move up 802
+,if  sensorlight == 926  then
+if  sensorprox == ON  then
+move right 567
+
+
+,if  sensorlight == 334 OR  sensorlight == 569 AND  sensorprox == ON  then
+ops[move left 591
+,move down 203
+,move up 632
+,move up 258
+,move right 572
+,move right 684
+,move left 226
+,move down 541
+,move right 973
+]
+,move down 159
+,move down 953
+,if  sensorprox == ON AND  sensorprox == OFF  then
+move right 340
+
+,move right 597
+,if  sensorprox == ON  then
+move right 861
+
+],if  sensorlight > 280  then
+ops[move left 599
+,move right 938
+,move up 541
+,move up 84
+,if  sensorlight == 441  then
+move left 764
+
+,move right 874
+]
+,move left 524
+],move right 752
+,move down 705
+,move down 303
+]move left 592
+if  sensorprox == ON  then
+move down 932
+
+ops[move left 820
+,move up 124
+,if  sensorlight > 395 OR  sensorlight > 19 AND  sensorlight == 506 OR  sensorprox == OFF OR  sensorlight > 798  then
+if  sensorlight > 87  then
+move up 878
+
+
+,ops[if  sensorprox == ON  then
+if  sensorprox == OFF  then
+move right 907
+
+
+,ops[move down 429
+,ops[move down 561
+,move down 186
+,move up 98
+,move down 350
+],move up 635
+,move left 586
+,move right 987
+,move up 893
+],move up 570
+,move left 367
+,move up 834
+,move down 848
+,move right 301
+,move left 630
+],move down 509
+,move right 776
+,move up 541
+,move down 519
+]move right 500
+move down 909
+if  sensorlight > 843  then
+move right 808
+
+move up 870
+move up 985
+move down 383
+move down 717
+ops[if  sensorprox == OFF OR  sensorlight == 942  then
+move left 629
+
+,ops[if  sensorlight > 164  then
+move left 501
+
+,if  sensorlight == 951 AND  sensorlight == 495  then
+ops[if  sensorprox == ON  then
+move left 739
+
+,move left 874
+,move down 169
+,ops[move down 500
+,move right 536
+,move down 465
+,move left 347
+],if  sensorlight == 412  then
+move down 588
+
+]
+,move left 794
+],move right 621
+,move right 372
+,move left 535
+,move down 568
+,move right 68
+,move right 434
+]if  sensorlight == 293 AND  sensorprox == OFF OR  sensorprox == ON AND  sensorprox == OFF OR  sensorprox == OFF AND  sensorprox == OFF AND  sensorprox == OFF  then
+ops[move right 228
+,move down 564
+,move up 884
+,if  sensorlight == 293  then
+move left 554
+
+,ops[ops[ops[move up 969
+],move left 174
+,if  sensorprox == ON  then
+move left 482
+
+,move up 397
+,if  sensorlight == 210  then
+move right 748
+
+,move left 135
+],move down 743
+,move left 639
+],ops[move up 423
+,move right 662
+,move left 72
+,ops[move right 1
+],if  sensorprox == ON OR  sensorlight > 118  then
+move up 91
+
+,move down 615
+,if  sensorlight > 422  then
+move up 864
+
+,if  sensorlight > 834  then
+move right 128
+
+,ops[move down 129
+,move right 375
+]],move down 11
+,move left 990
+,move up 927
+,ops[move right 1
+,if  sensorlight == 462  then
+if  sensorprox == ON  then
+move up 539
+
+
+,move right 19
+,move up 393
+,if  sensorprox == ON  then
+ops[move down 551
+]
+,move up 789
+,move right 141
+,if  sensorprox == ON  then
+move right 143
+
+,move up 64
+,move right 555
+]]
+if  sensorlight > 423  then
+move right 309
+
+move up 709
+if  sensorlight == 523  then
+move left 158
+
+if  sensorlight > 297  then
+move down 841
+
+move up 513
+move up 655
+if  sensorlight > 558  then
+move down 338
+
+move right 140
+move right 15
+if  sensorprox == OFF  then
+move up 418
+
+ops[move right 755
+,move up 711
+,if  sensorlight == 24  then
+move down 112
+
+,move right 261
+,if  sensorprox == ON OR  sensorlight == 376 AND  sensorlight == 266 OR  sensorprox == ON  then
+move up 834
+
+,if  sensorprox == ON  then
+move left 261
+
+,move right 568
+,move left 9
+,if  sensorlight == 436  then
+if  sensorprox == OFF OR  sensorlight == 118  then
+move left 951
+
+
+,if  sensorlight == 852  then
+if  sensorprox == ON  then
+move down 935
+
+
+]move left 564
+move up 352
+move up 298
+ops[move down 975
+,move up 70
+]move right 53
+move down 683
+if  sensorprox == ON  then
+move left 152
+
+move left 947
+if  sensorlight == 629  then
+move down 529
+
+ops[ops[move right 985
+,move up 37
+,move down 72
+,ops[move right 540
+],move right 776
+,move right 927
+,if  sensorlight == 265  then
+ops[move down 635
+,move down 978
+,if  sensorlight > 35  then
+move left 566
+
+,move up 266
+]
+],move left 108
+,move down 559
+,if  sensorprox == OFF  then
+ops[move down 797
+,ops[move left 670
+],move left 928
+,move left 314
+,ops[move up 336
+],move up 444
+,if  sensorprox == OFF  then
+ops[move left 97
+,move right 857
+,move down 700
+,move down 70
+,move right 196
+,move right 890
+,move up 370
+,move right 9
+,move right 705
+]
+,move right 734
+]
+,if  sensorprox == ON  then
+move up 211
+
+,ops[ops[move down 402
+,move right 395
+,move up 590
+,if  sensorlight == 785  then
+move right 841
+
+,move up 574
+],move down 291
+,move left 367
+,ops[move right 409
+,ops[move left 94
+,move up 252
+],move left 652
+,ops[if  sensorprox == ON  then
+move up 957
+
+,move right 652
+,move up 950
+,move up 165
+,ops[move left 956
+,move right 734
+,move up 257
+],move up 860
+],ops[ops[move left 298
+,move up 295
+,move right 557
+,move down 126
+,move left 254
+,move left 72
+,move up 881
+]]]],move left 897
+]move right 204
+move right 747
+move down 595
+ops[ops[ops[ops[move left 422
+,if  sensorlight == 879  then
+move right 108
+
+,ops[move up 8
+,move right 176
+,move up 303
+,move up 309
+,move right 627
+,move down 87
+,move right 107
+,move up 124
+,move down 752
+,move down 502
+],move up 449
+,move left 1
+],move down 109
+,move up 288
+,ops[move right 984
+,move down 424
+,move right 862
+],if  sensorprox == ON  then
+move right 295
+
+,move right 58
+],if  sensorlight > 761  then
+move up 142
+
+,move down 883
+,move up 834
+,ops[ops[move down 486
+,ops[move up 247
+,move down 556
+,move up 43
+,move up 951
+,move up 790
+],move up 550
+,if  sensorlight > 459 AND  sensorlight == 555 AND  sensorlight == 261  then
+move right 764
+
+,ops[move down 400
+,move down 971
+,move left 778
+,move up 130
+,move right 13
+,move left 418
+,move left 780
+,move down 980
+,move down 238
+],if  sensorlight == 212 OR  sensorlight > 644 OR  sensorlight == 226 AND  sensorlight == 895 AND  sensorlight == 83 AND  sensorprox == ON OR  sensorlight == 781 OR  sensorprox == OFF AND  sensorlight == 243  then
+move down 546
+
+],move left 757
+,move up 3
+,move left 486
+,move up 175
+],move down 389
+,move down 739
+],if  sensorlight > 767 OR  sensorlight == 285  then
+ops[move up 597
+,move up 599
+]
+,ops[if  sensorlight > 111 AND  sensorlight > 452  then
+move up 300
+
+,move right 490
+,move right 785
+,move left 273
+,move left 869
+,if  sensorprox == ON AND  sensorprox == ON  then
+move down 270
+
+]]move up 710
+move left 233
+move up 523
+move up 414
+move up 265
+move up 251
+move right 795
+if  sensorprox == ON AND  sensorlight > 255 OR  sensorprox == ON OR  sensorprox == OFF  then
+if  sensorprox == OFF  then
+ops[ops[ops[move right 988
+,move left 108
+,move right 470
+,move up 4
+],move up 65
+,move up 187
+,move left 542
+,ops[move right 60
+,move left 766
+,move left 405
+],if  sensorlight > 689  then
+move up 188
+
+,move left 295
+,move right 373
+,if  sensorprox == ON OR  sensorlight == 977 AND  sensorlight > 650 OR  sensorlight > 429 OR  sensorlight > 415 AND  sensorprox == ON OR  sensorlight == 636  then
+move up 547
+
+,ops[move down 704
+,move right 34
+,move left 349
+,move up 301
+,move right 217
+,move down 150
+]],move left 160
+,if  sensorlight == 44  then
+if  sensorlight == 871 AND  sensorlight > 118 OR  sensorlight == 894 OR  sensorlight == 31 OR  sensorlight == 97 OR  sensorprox == OFF  then
+move right 261
+
+
+,ops[ops[move left 235
+,move up 935
+,move down 550
+,move right 819
+,move down 505
+,move down 905
+,move right 693
+,move left 945
+],move up 362
+,move up 527
+,if  sensorlight > 940  then
+move down 810
+
+,move up 627
+,if  sensorlight == 158 OR  sensorlight > 928 AND  sensorlight > 558  then
+move right 49
+
+,move down 149
+],ops[if  sensorprox == OFF  then
+move right 325
+
+,move right 327
+,move up 879
+,if  sensorlight > 155 AND  sensorlight > 991 OR  sensorprox == OFF AND  sensorlight == 449 OR  sensorlight == 930 OR  sensorlight == 338 OR  sensorlight == 631 AND  sensorprox == ON AND  sensorlight > 586 AND  sensorlight == 53 OR  sensorprox == OFF AND  sensorlight == 634 OR  sensorprox == ON AND  sensorprox == ON AND  sensorprox == ON OR  sensorlight == 961 AND  sensorprox == ON OR  sensorprox == OFF AND  sensorprox == ON OR  sensorlight == 280 AND  sensorlight > 610 OR  sensorprox == ON  then
+move right 28
+
+,move up 772
+]]
+
+ops[move left 125
+,ops[move up 783
+,ops[ops[if  sensorlight == 937 AND  sensorlight > 639  then
+move down 188
+
+,move up 200
+,move left 73
+],move right 197
+],move right 495
+,if  sensorprox == ON  then
+if  sensorlight == 655  then
+move right 592
+
+
+,ops[move up 529
+],ops[if  sensorprox == OFF  then
+if  sensorprox == ON OR  sensorprox == OFF  then
+move right 84
+
+
+,ops[move up 56
+,move left 22
+,move left 912
+,ops[move left 984
+,move down 337
+,move right 359
+,move down 303
+,move right 92
+,move right 121
+,move right 609
+,move right 389
+,move right 58
+,move left 362
+],move up 769
+,if  sensorprox == ON  then
+move left 54
+
+,move right 845
+,if  sensorlight == 511  then
+move left 971
+
+,move up 973
+],move right 581
+,move left 539
+,move left 900
+,ops[move up 562
+,move down 255
+,move right 84
+,ops[move up 296
+,move right 451
+,move down 167
+,move right 257
+,move up 930
+,move left 719
+,move up 430
+,move up 888
+],if  sensorprox == OFF  then
+move up 738
+
+,move right 836
+,ops[move right 318
+,move down 686
+,move down 70
+,move left 708
+,move up 400
+,move down 880
+],ops[move down 608
+,move left 957
+,move up 413
+,move right 75
+,move up 977
+,move up 220
+,move left 47
+,move right 840
+],if  sensorprox == ON AND  sensorlight == 173  then
+move left 662
+
+,ops[move down 284
+,move left 657
+]]]],move up 70
+,move up 552
+,move up 124
+,if  sensorprox == OFF OR  sensorprox == ON  then
+move right 474
+
+]move left 3
+if  sensorlight > 502 AND  sensorprox == ON  then
+if  sensorprox == OFF OR  sensorlight > 592 AND  sensorlight > 117 AND  sensorlight == 260 OR  sensorlight > 743 AND  sensorlight == 251 OR  sensorprox == ON OR  sensorlight > 407 AND  sensorprox == ON  then
+ops[move left 229
+,move down 970
+,ops[move up 353
+,if  sensorprox == OFF AND  sensorprox == ON  then
+move right 580
+
+,if  sensorlight == 419  then
+move right 74
+
+,move down 105
+,move left 708
+,move down 406
+,move down 549
+,ops[move left 40
+,move left 277
+],if  sensorprox == OFF OR  sensorprox == ON OR  sensorprox == OFF AND  sensorprox == OFF OR  sensorlight > 24 AND  sensorprox == OFF  then
+move right 6
+
+,move down 422
+],move down 177
+,move left 681
+,move up 258
+,move down 939
+,ops[if  sensorprox == OFF  then
+move up 147
+
+,if  sensorprox == ON  then
+move left 78
+
+,ops[move up 499
+,move up 438
+,move right 617
+,move up 350
+,move up 22
+,move down 906
+,move up 467
+],move left 778
+,move down 27
+,move down 173
+,move up 89
+,ops[move down 577
+,move right 887
+,move left 902
+,move right 995
+,move up 290
+,move right 519
+,move up 397
+,move left 333
+,move left 621
+],move up 848
+,ops[move left 223
+]],move left 5
+,move down 448
+]
+
+ops[if  sensorlight > 652 AND  sensorlight == 367  then
+move right 51
+
+,ops[move down 499
+,move up 399
+,if  sensorlight > 848  then
+move up 350
+
+,ops[move left 678
+,move right 710
+,move up 613
+,move right 291
+,ops[if  sensorprox == OFF AND  sensorprox == OFF OR  sensorprox == OFF AND  sensorlight > 455 AND  sensorprox == ON OR  sensorprox == ON OR  sensorlight == 784 OR  sensorprox == ON OR  sensorprox == OFF AND  sensorlight == 88 OR  sensorlight > 753 AND  sensorlight == 297 OR  sensorlight == 830  then
+move down 157
+
+,ops[move right 666
+,move down 387
+,move down 75
+,move left 62
+,move up 909
+,move up 767
+,move up 67
+,move up 750
+]],move down 39
+,move right 335
+],move right 431
+,move right 983
+,move right 493
+,move up 815
+],move right 242
+,ops[move right 255
+,move right 673
+,if  sensorprox == ON  then
+move up 390
+
+,move right 777
+,move up 993
+],move down 530
+,move left 381
+,if  sensorlight > 310  then
+ops[move right 171
+,if  sensorprox == OFF  then
+if  sensorlight == 372  then
+move left 371
+
+
+,if  sensorprox == OFF  then
+move left 22
+
+,move right 754
+,move left 827
+,move left 653
+,if  sensorprox == OFF OR  sensorlight == 593  then
+if  sensorlight == 133  then
+move down 349
+
+
+,if  sensorlight == 329  then
+if  sensorprox == ON  then
+move right 260
+
+
+,ops[move left 486
+,if  sensorprox == OFF  then
+move up 906
+
+],move right 429
+]
+,move left 320
+,move up 668
+]move right 602
+move down 39
+move up 414
+move down 757
+ops[ops[move down 324
+,move down 229
+,move left 9
+,if  sensorlight > 578  then
+move left 691
+
+,ops[if  sensorprox == ON  then
+ops[move up 508
+,move down 244
+,move down 827
+,move down 136
+]
+,ops[if  sensorprox == OFF  then
+move down 831
+
+,if  sensorlight == 117  then
+move left 466
+
+],ops[ops[move up 957
+,move down 615
+,move right 716
+,move up 398
+,move right 977
+,move right 612
+,move right 9
+,move left 856
+,move down 278
+,move left 586
+],move down 999
+,if  sensorlight > 543  then
+move left 368
+
+,ops[move left 504
+,move right 478
+,move right 470
+,move right 695
+],move up 306
+,if  sensorprox == ON AND  sensorlight > 16 AND  sensorlight == 110  then
+move down 353
+
+,move up 28
+,move left 857
+,move down 83
+,ops[move up 184
+,move left 371
+,move down 492
+,move up 533
+,move down 467
+,move down 305
+,move left 64
+]]],move down 400
+],move right 752
+,if  sensorlight == 76  then
+ops[move down 412
+,ops[if  sensorprox == OFF  then
+move down 993
+
+,move right 459
+,ops[move down 786
+,move down 798
+],move up 800
+,move left 354
+,move left 429
+,move down 846
+],ops[move left 930
+],if  sensorlight == 538  then
+move right 348
+
+,move left 640
+,ops[move left 794
+,move down 426
+,if  sensorprox == OFF AND  sensorlight == 245 OR  sensorprox == OFF AND  sensorprox == OFF OR  sensorlight == 305 AND  sensorprox == OFF OR  sensorprox == ON OR  sensorprox == OFF OR  sensorlight == 308  then
+move down 634
+
+,ops[move right 18
+,move down 93
+],ops[move right 476
+,move right 873
+,move down 158
+,move right 746
+,move up 154
+,move right 542
+],ops[move up 586
+,move left 425
+,move left 193
+,move down 173
+,move up 873
+,move right 39
+,move right 807
+,move right 92
+,move right 51
+],move up 923
+,ops[move up 246
+,move down 909
+,move left 379
+,move up 648
+,move left 565
+,move left 994
+],if  sensorprox == ON AND  sensorprox == ON  then
+move right 811
+
+]]
+]move down 213
+if  sensorprox == ON AND  sensorlight > 451 OR  sensorprox == ON OR  sensorlight > 185  then
+ops[if  sensorprox == ON  then
+move down 874
+
+,ops[if  sensorlight == 697 OR  sensorprox == OFF  then
+move left 23
+
+],move up 386
+,ops[move right 56
+,if  sensorlight > 965  then
+move down 838
+
+,ops[move down 862
+,move right 558
+,move right 447
+,if  sensorlight > 242  then
+move down 826
+
+,move down 4
+,move down 626
+,if  sensorprox == ON  then
+move left 470
+
+,move right 990
+,move left 852
+,if  sensorlight > 79  then
+move up 829
+
+],move right 269
+,move left 446
+,move down 801
+,move right 427
+,move left 663
+],move right 132
+,move down 121
+,if  sensorlight > 196 OR  sensorlight == 14 OR  sensorlight > 861 AND  sensorlight > 555 AND  sensorprox == OFF  then
+move left 905
+
+,move left 228
+]
+if  sensorlight > 255  then
+ops[move left 704
+,ops[move left 161
+,move right 11
+,ops[move down 451
+,ops[move right 388
+],move down 979
+,ops[move up 846
+,move left 645
+,move right 774
+,move up 129
+,move down 838
+,move right 592
+,move right 150
+,move left 701
+],if  sensorprox == ON AND  sensorprox == OFF  then
+move up 804
+
+],move right 337
+],ops[move up 828
+,move down 738
+,ops[if  sensorprox == ON  then
+move down 910
+
+,ops[move right 205
+,move down 594
+,move right 320
+],move down 488
+,move down 634
+,if  sensorprox == OFF  then
+move left 349
+
+,if  sensorlight > 366 AND  sensorprox == ON OR  sensorprox == ON AND  sensorlight > 583 OR  sensorprox == ON AND  sensorprox == OFF  then
+move left 316
+
+,ops[move down 945
+,move right 939
+,move left 820
+,move up 203
+,move right 870
+,move down 129
+],ops[move left 223
+,move down 158
+,move down 863
+,move down 146
+]],move down 365
+],move up 735
+,ops[move left 481
+,move right 967
+,ops[move right 404
+,move right 405
+,move down 979
+,move left 372
+,ops[move left 494
+,move right 585
+,move left 756
+,move left 35
+,move right 389
+,move left 772
+,move down 798
+,move right 495
+,move down 259
+],move up 605
+,move right 383
+,move down 801
+,move right 432
+],if  sensorlight > 997  then
+ops[move up 946
+,move left 57
+,move left 568
+,move down 689
+,move left 110
+,move right 620
+,move left 457
+,move right 959
+]
+,move right 17
+,ops[move up 542
+,ops[move right 627
+,move up 729
+,move down 738
+,move down 577
+,move up 566
+,move down 410
+,move right 506
+,move up 625
+,move down 170
+],if  sensorprox == ON  then
+move down 497
+
+],ops[move right 958
+,move down 776
+,ops[move left 466
+,move down 530
+,move right 594
+,move right 538
+],move up 395
+,move down 519
+,move down 219
+,if  sensorprox == ON  then
+move left 940
+
+,ops[move left 610
+,move right 24
+,move right 550
+,move down 112
+,move down 760
+,move down 591
+,move up 43
+],move up 790
+],ops[ops[move left 878
+,move down 587
+,move left 917
+,move left 693
+,move up 883
+],ops[move left 316
+,move down 976
+,move up 835
+,move left 306
+,move right 915
+],move left 211
+,ops[move right 701
+,move right 54
+,move up 61
+,move down 33
+,move left 813
+,move left 858
+],move left 150
+,move right 817
+,move down 362
+,move up 667
+]]]
+move right 178
+move down 945
+move up 646
+if  sensorlight > 186  then
+move left 350
+
+move down 981
+move down 392
+if  sensorlight == 848 AND  sensorprox == OFF  then
+move up 9
+
+move down 245
+if  sensorprox == OFF AND  sensorlight == 979 OR  sensorlight > 670 AND  sensorprox == OFF AND  sensorlight == 390  then
+move right 674
+
+endcleaning
