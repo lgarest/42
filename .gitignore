@@ -1,3 +1,7 @@
 *.exe
 IDI/lab/models/*.cpp
 LI/lab/LI-Isaac/*
+*.gz
+*.zip
+*.rar
+*.o
