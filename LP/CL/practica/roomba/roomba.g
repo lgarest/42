@@ -19,7 +19,8 @@ typedef struct {
 } Attrib;
 
 // function to fill token information (predeclaration)
-void zzcr_attr(Attrib *attr, int type, char *text);
+void zzcr_attr(Attrib *attr, int type, char *ty
+  ext);
 
 // fields for AST nodes
 #define AST_FIELDS string kind; string text;
