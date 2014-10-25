@@ -175,7 +175,7 @@ bool evaluateChild(AST *node){
     }
     else if(node->down->kind == "sensorprox" or node->down->right->kind == "sensorprox" ){
       // proximity sensor case '=='
-      int cn1 = SenseProx(); // proximitysensor value 0 o 1
+      int cn1 = SenseProx(); // proximitysensor value 0 or 1
       string cn2 = node->down->kind; // value to compare
       int aux = 0; // aux defaults to OFF
 
@@ -185,10 +185,11 @@ bool evaluateChild(AST *node){
     }
   }
   else if(node->kind == "AND" or node->kind == "OR"){
+    // recursive call evaluating its children
     bool c1 = evaluateChild(node->down);
     bool c2 = evaluateChild(node->down->right);
     if (node->kind == "AND") return c1 and c2;
-    else if (node->kind == "OR") return c1 or c2;
+    return c1 or c2;
   }
 }
 
@@ -199,15 +200,6 @@ bool evaluateChild(AST *node){
 void evaluateIf(AST *node){
   if(node->down != NULL and evaluateChild(node->down))
     lookForPatterns(node->down->right);
-}
-
-/* FUNCTION: executeTask
- This function finds executes the required task.
- - parameters:
-    - node (pointer): it points to the task node. */
-void executeTask(AST *node){
-  AST *aux = findTask(node->down->text); // find the task
-  lookForPatterns(aux); // and execute its code
 }
 
 /* FUNCTION: lookForPatterns
@@ -223,7 +215,7 @@ void lookForPatterns(AST *node){
   else if (node->kind == "if")
     evaluateIf(node); // evaluation of the if
   else if (node->kind == "exec")
-    executeTask(node); // execution of the task
+    lookForPatterns(findTask(node->down->text)); // find the task and execute its code
   else if (node->kind == "list" and node->down != NULL)
     lookForPatterns(node->down); // children call
   if (node->right != NULL) lookForPatterns(node->right); // recursive call
@@ -235,8 +227,7 @@ void findNewPosition(){
   // we read the initial position values
   finalposition.first = atoi(root->down->down->kind.c_str());
   finalposition.second = atoi(root->down->down->right->kind.c_str());
-  if (root->down->right->down != NULL)
-    lookForPatterns(root->down->right->down); // call of the function with the first instruction
+  lookForPatterns(root->down->right->down); // call of the function with the first instruction
   cout << "finalposition: (" << finalposition.first << ", " <<finalposition.second << ")\n";
 }
 
