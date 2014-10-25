@@ -1,21 +1,24 @@
+### Author: Luis García Estrades
+### SubGroup: 13
+
 CC=g++
 FILE=roomba
 CFLAGS = -I/usr/include/pccts/
 
-all: clear clean $(FILE) final
+all: clear clean $(FILE)
 
 $(FILE): $(FILE).c
-	$(CC) -o $(FILE).exe $(FILE).c scan.c err.c $(CFLAGS)
+	$(CC) -w -o $(FILE).exe $(FILE).c scan.c err.c $(CFLAGS)
 
 $(FILE).c: $(FILE).g
 	antlr -gt $(FILE).g
 	dlg -ci parser.dlg scan.c
 
-test: clear
-	./$(FILE).exe < inputtest.txt
+# test: clear
+# 	./$(FILE).exe < inputtest.txt
 
-final: clear
-	./$(FILE).exe < inputorig.txt
+# orig: clear
+# 	./$(FILE).exe < inputorig.txt
 
 clear:
 	clear

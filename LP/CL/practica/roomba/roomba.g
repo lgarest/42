@@ -1,5 +1,4 @@
-/* Student: Luis García Estrades
-  Subject: LP
+/* Author: Luis García Estrades
   SubGroup: 13 */
 
 #header
@@ -19,8 +18,7 @@ typedef struct {
 } Attrib;
 
 // function to fill token information (predeclaration)
-void zzcr_attr(Attrib *attr, int type, char *ty
-  ext);
+void zzcr_attr(Attrib *attr, int type, char *text);
 
 // fields for AST nodes
 #define AST_FIELDS string kind; string text;
@@ -41,6 +39,7 @@ AST *root;
 //stores the position of the robot in 2D coordinates
 pair <int,int> finalposition;
 
+
 // function to fill token information
 void zzcr_attr(Attrib *attr, int type, char *text) {
   if (type == ID) {
@@ -52,6 +51,7 @@ void zzcr_attr(Attrib *attr, int type, char *text) {
     attr->text = "";
   }
 }
+
 
 // function to create a new AST node
 AST* createASTnode(Attrib* attr, int type, char* text) {
@@ -73,6 +73,7 @@ AST* createASTlist(AST *child) {
  return as;
 }
 
+
 AST *findTask(string id) {
   AST *n = root->down->right->right->down;
   while (n != NULL and (n->down->text != id)) n = n->right;
@@ -87,7 +88,6 @@ AST *c=a->down;
 for (int i=0; c!=NULL && i<n; i++) c=c->right;
 return c;
 }
-
 
 
 /// print AST, recursively, with indentation
@@ -113,6 +113,7 @@ void ASTPrintIndent(AST *a,string s)
   }
 }
 
+
 /// print AST
 void ASTPrint(AST *a)
 {
@@ -123,19 +124,18 @@ void ASTPrint(AST *a)
   }
 }
 
-bool SenseProx() { //return (rand() % 2) == 0;
-  return false;
-}
 
-int SenseLight() { //return rand() % 100;
-  return 50;
-}
+bool SenseProx() { return (rand() % 2) == 0; }
+
+
+int SenseLight() { return rand() % 100; }
 
 //////////////////////////////////////////////////////////////////////////////
 // AUXILIAR FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
 
 void lookForPatterns(AST *node); // function prototype
+
 
 /* FUNCTION: movePos
  This function changes the robot coords depending on the direction and its value
@@ -150,6 +150,7 @@ void movePos(AST *node){
     finalposition.second += atoi(node->down->right->kind.c_str());
   else finalposition.second -= atoi(node->down->right->kind.c_str());
 }
+
 
 /* FUNCTION: evaluateChild
  This function evaluates the conditions of an if, they can be nested.
@@ -193,6 +194,7 @@ bool evaluateChild(AST *node){
   }
 }
 
+
 /* FUNCTION: evaluateIf
  This function evaluates the conditions of an if and executes the nested instructions in case of a true value.
  - parameters:
@@ -201,6 +203,7 @@ void evaluateIf(AST *node){
   if(node->down != NULL and evaluateChild(node->down))
     lookForPatterns(node->down->right);
 }
+
 
 /* FUNCTION: lookForPatterns
  This function finds patterns in instructions and executes them recursively.
@@ -220,6 +223,7 @@ void lookForPatterns(AST *node){
     lookForPatterns(node->down); // children call
   if (node->right != NULL) lookForPatterns(node->right); // recursive call
 }
+
 
 /* FUNCTION: findNewPosition
  This function finds the new position of the robot. It iterates over all the relevant program instructions.*/
