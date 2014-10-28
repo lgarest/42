@@ -1,5 +1,6 @@
 *.exe
 IDI/lab/models/*.cpp
+G/examen
 LI/lab/LI-Isaac/*
 *.gz
 *.zip
