@@ -3,9 +3,10 @@ CFLAGS=-lglut -lGL -lGLU
 FILENAME=B3_luis.garcia
 FILENAME1=B3_s1_luis.garcia
 FILENAME2=B3_s2_luis.garcia
+FILENAME3=B3_s3_luis.garcia
 MODEL=../models/model.cpp
 
-all: bloque1s2 clear exe2
+all: bloque1s3 clear exe3
 
 clear:
 	clear
@@ -19,6 +20,9 @@ bloque1s1: $(FILENAME1).c
 bloque1s2: $(FILENAME2).c
 	$(CC) -o $(FILENAME2).exe $(FILENAME2).c $(MODEL) $(CFLAGS)
 
+bloque1s3: $(FILENAME3).c
+	$(CC) -o $(FILENAME3).exe $(FILENAME3).c $(MODEL) $(CFLAGS)
+
 exe0:
 	./$(FILENAME).exe
 
@@ -27,5 +31,8 @@ exe1:
 
 exe2:
 	./$(FILENAME2).exe
+
+exe3:
+	./$(FILENAME3).exe
 clean:
 	rm *.exe
