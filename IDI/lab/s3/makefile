@@ -6,7 +6,7 @@ FILENAME2=B3_s2_luis.garcia
 FILENAME3=B3_s3_luis.garcia
 MODEL=../models/model.cpp
 
-all: bloque1s3 clear exe3
+all: bloque1s2 clear exe2
 
 clear:
 	clear

@@ -15,14 +15,15 @@ GLint currViewportSize[2] = { 600, 600 };
 GLfloat rad_xyz[3] = { 0.0, 0.0, 0.0};
 GLint lastClick[2];
 
+GLfloat pos[3] = {0.0,0.5,0.0};
+GLfloat rot[3] = {0.0,-90.0,0.0};
+GLfloat dir[3] = {-1.0,0.5,0.0};
+
 GLint currViewportStartPos[2] = { 0, 0 };
 GLfloat bckgrndColor[3] = {0.0, 0.0, 0.0};
-bool verbose = 0, axis = 0, l_click = 0, r_click = 0, euler_look = 1;
+bool verbose=0, axis=0, l_click=0, r_click=0, euler_look=1, b_sceneSphere=0, walls=1;
 // ORTO == AXONOMETRICA != PERSPECTIVE
-bool ortho_camera = false;
-
-GLfloat trans_lego_x = -0.60;
-GLfloat trans_lego_y = -0.15;
+bool ortho_camera=0;
 float zoom_factor = 0.0;
 
 struct ModelBox {
@@ -73,29 +74,37 @@ float capNum(float min, float max, float n){
 
 float toRads(float alpha){ return (alpha+90.0) * (M_PI/180.0); }
 
-vector<float> rotateX(GLfloat v[], float angle){
-    float phi = toRads(angle);
+void rotateX(GLfloat* v, float angle){
+    float phi = toRads(angle-90.0);
     vector<float> ret (3, 0.0);
     ret[0] = v[0];
     ret[1] = cos(phi)*v[1] - sin(phi)*v[2];
     ret[2] = sin(phi)*v[1] + cos(phi)*v[2];
-    return ret;
+    v[0] = ret[0];
+    v[1] = ret[1];
+    v[2] = ret[2];
 }
-vector<float> rotateY(GLfloat v[], float angle){
-    float phi = toRads(angle);
+
+void rotateY(GLfloat* v, float angle){
+    float phi = toRads(angle-90.0);
     vector<float> ret (3, 0.0);
     ret[0] = cos(phi)*v[0] + sin(phi)*v[2];
     ret[1] = v[1];
     ret[2] = -sin(phi)*v[0] + cos(phi)*v[2];
-    return ret;
+    v[0] = ret[0];
+    v[1] = ret[1];
+    v[2] = ret[2];
 }
-vector<float> rotateZ(GLfloat v[], float angle){
-    float phi = toRads(angle);
+
+void rotateZ(GLfloat* v, float angle){
+    float phi = toRads(angle-90.0);
     vector<float> ret (3, 0.0);
     ret[0] = cos(phi)*v[0] -sin(phi)*v[1];
     ret[1] = sin(phi)*v[0] + cos(phi)*v[1];
     ret[2] = v[2];
-    return ret;
+    v[0] = ret[0];
+    v[1] = ret[1];
+    v[2] = ret[2];
 }
 
 void displayHelp(){
@@ -104,11 +113,13 @@ void displayHelp(){
     printf("* %s \n", "'p' para cambiar entre perspectiva/axonometrica");
     printf("* %s \n", "'c' para cambiar entre euler/gluLookAt");
     printf("* %s \n", "'r' para resetear la cámara");
+    printf("* %s \n", "'v' para mostrar/ocultar las paredes");
 
+    printf("* %s \n", "'n' para mostrar/ocultar la esfera de la escena");
     printf("* %s \n", "'x' para mostrar/ocultar los ejes");
     printf("* %s \n", "'q' o 'esc' para cerrar el programa");
     printf("* %s \n", "'h' para mostrar esta ayuda");
-    printf("* %s \n", "'v' para habilitar / deshabilitar el modo debug o verbose");
+    printf("* %s \n", "'b' para habilitar / deshabilitar el modo debug o verbose");
     printf("**************************************************************\n");
 }
 
@@ -150,19 +161,19 @@ void showVariables(){
 
 void displayFloor(){
     glBegin(GL_QUADS);
-        glColor4f(0.44,0.95,0.46,1.0);
-        glVertex3f(-0.75, -0.4, -0.75);
-        glVertex3f(-0.75, -0.4, 0.75);
-        glVertex3f(0.75, -0.4, 0.75);
-        glVertex3f(0.75, -0.4, -0.75);
+        glColor4f(0.298,0.6,0.0,1.0);
+        glVertex3f(-5, 0.0, -5);
+        glVertex3f(-5, 0.0, 5);
+        glVertex3f(5, 0.0, 5);
+        glVertex3f(5, 0.0, -5);
     glEnd();
 }
 
 void calculateSceneSphere(){
-    ss.xmin = ss.zmin = -0.75;
-    ss.xmax = ss.zmax = 0.75;
-    ss.ymin = -0.4;
-    ss.ymax = 0.8;
+    ss.xmin = ss.zmin = -5.0;
+    ss.xmax = ss.zmax = 5.0;
+    ss.ymin = 0.0;
+    ss.ymax = 2.25;
     ss.diameter = sqrt(pow((ss.xmax-ss.xmin), 2.0) +
                        pow((ss.ymax-ss.ymin), 2.0) +
                        pow((ss.zmax-ss.zmin), 2.0));
@@ -198,7 +209,7 @@ GLfloat calculateScaleFactor(GLfloat size){
     return size/scalemodel;
 }
 
-void displayModel(Model a, GLfloat size, GLfloat x, GLfloat y, GLfloat z){
+void displayModel(Model a, GLfloat size, GLfloat x, GLfloat y, GLfloat z, GLfloat phi, GLfloat psi, GLfloat theta){
     mb.scale = calculateScaleFactor(size);
 
     glPushMatrix();
@@ -206,7 +217,10 @@ void displayModel(Model a, GLfloat size, GLfloat x, GLfloat y, GLfloat z){
 
         glTranslatef(x,y,z);
         // rotations applied to the model
-        glRotatef(180.,0.0,1.0,0.0);
+        glRotatef(phi,1.0,0.0,0.0);
+        glRotatef(psi,0.0,1.0,0.0);
+        glRotatef(theta,0.0,0.0,0.0);
+
         glScalef(mb.scale,mb.scale,mb.scale);
         // we translate the model to be drawn in the (0,0,0)
         glTranslatef(-mb.center[0],-mb.center[1],-mb.center[2]);
@@ -252,8 +266,10 @@ void displayCone(GLfloat radius, GLfloat height, GLfloat x, GLfloat y, GLfloat z
     glPopMatrix();
 }
 
-void displaySnowMan(){
+void displaySnowMan(float x, float y, float z){
     glPushMatrix();
+        glTranslatef(x,y,z);
+        glRotatef(-90.0, 0.0, 1.0, 0.0);
         glColor4f(1.0, 1.0, 1.0, 1.0);
         glutSolidSphere(0.4, 40, 40);
         glPushMatrix();
@@ -261,6 +277,15 @@ void displaySnowMan(){
             glutSolidSphere(0.2, 40, 40);
         glPopMatrix();
         displayCone(0.1, 0.2, 0.1,0.6,0.0);
+    glPopMatrix();
+}
+
+void displayWall(float x, float y, float z, float w, float h, float d){
+    glPushMatrix();
+        glColor4f(0.6, 0.298, 0.0, 1.0);
+        glTranslatef(x, y + h/2.0, z);
+        glScalef(w/10.0, h/10.0, d/10.0);
+        glutSolidCube(10.0);
     glPopMatrix();
 }
 
@@ -298,9 +323,12 @@ void keyboardCtrl(unsigned char key, int x, int y){
         case 'h':
             displayHelp();
             break;
-        case 'v':
+        case 'b':
             verbose = !verbose;
             break;
+        case 'v':
+            walls = !walls;
+        break;
         case 'p':
             ortho_camera = !ortho_camera;
             configCamera();
@@ -308,6 +336,9 @@ void keyboardCtrl(unsigned char key, int x, int y){
         case 'c':
             euler_look = !euler_look;
             configCamera();
+            break;
+        case 'n':
+            b_sceneSphere = !b_sceneSphere;
             break;
         case 'r':
             ortho_camera = 0;
@@ -392,15 +423,25 @@ void resize(int w, int h){
 }
 
 void displayScene(){
-    glColor4f(0.5, 0.5, 0.5, 1.0);
-    glutWireSphere(ss.radius,50,50);
-    glPushMatrix();
-        displayModel(m, 0.5, trans_lego_x, trans_lego_y, -0.67);
-    glPopMatrix();
+    if (b_sceneSphere){
+        glColor4f(0.05, 0.05, 0.05, 1.0);
+        glutWireSphere(ss.radius,50,50);
+    }
+    displayModel(m, 1.5, 2.5, 0.75, 2.5, 0.0, 0.0, 0.0);
 
-    glPushMatrix();
-        displaySnowMan();
-    glPopMatrix();
+    displayModel(m, 1.0, pos[0], pos[1], pos[2], rot[0], rot[1], rot[2]);
+
+    displaySnowMan(2.5,0.4,-2.5);
+    displaySnowMan(-2.5,0.4,2.5);
+    displaySnowMan(-2.5,0.4,-2.5);
+    if (walls){
+        displayWall(0.0,0.0,-4.9,10.0,1.5,0.2);
+        displayWall(1.5,0.0,2.5,0.2,1.5,4);
+    }
+    GLfloat aux[3] = {0.,0.,-2.};
+    rotateX(aux, 45.0);
+    printf("%s: (%f,%f,%f)+ \n", "aux",aux[0], aux[1], aux[2]);
+
     glColor4f(1.0, 1.0, 1.0, 1.0);
     displayFloor();
 }
@@ -428,7 +469,7 @@ void iniGL(int argc, char const *argv[]){
 
     // Set up depth testing.
     glEnable(GL_DEPTH_TEST);
-    m.load("../models/legoman.obj");
+    m.load("../models/Patricio.obj");
 
     calculateModelBox(m);
     calculateSceneSphere();
