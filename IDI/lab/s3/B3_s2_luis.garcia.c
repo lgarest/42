@@ -15,10 +15,6 @@ GLint currViewportSize[2] = { 600, 600 };
 GLfloat rad_xyz[3] = { 0.0, 0.0, 0.0};
 GLint lastClick[2];
 
-GLfloat pos[3] = {0.0,0.5,0.0};
-GLfloat rot[3] = {0.0,-90.0,0.0};
-GLfloat dir[3] = {-1.0,0.5,0.0};
-
 GLint currViewportStartPos[2] = { 0, 0 };
 GLfloat bckgrndColor[3] = {0.0, 0.0, 0.0};
 bool verbose=0, axis=0, l_click=0, r_click=0, euler_look=1, b_sceneSphere=0, walls=1;
@@ -54,7 +50,16 @@ struct Camera {
     GLfloat UP[3] = {0.0, 1.0, 0.0};
 };
 
+struct MovableObject{
+    GLfloat p[3];
+    GLfloat r[3];
+    GLfloat rotSpeed;
+    GLfloat speed;
+    GLfloat rotTaf;
+};
+
 Model m;
+MovableObject patrick;
 ModelBox mb;
 SceneSphere ss;
 Camera cam;
@@ -269,14 +274,21 @@ void displayCone(GLfloat radius, GLfloat height, GLfloat x, GLfloat y, GLfloat z
 void displaySnowMan(float x, float y, float z){
     glPushMatrix();
         glTranslatef(x,y,z);
-        glRotatef(-90.0, 0.0, 1.0, 0.0);
         glColor4f(1.0, 1.0, 1.0, 1.0);
-        glutSolidSphere(0.4, 40, 40);
-        glPushMatrix();
+        glutSolidSphere(0.4, 40, 40); // body
+        glRotatef(-90.0, 0.0, 1.0, 0.0);
+        glPushMatrix(); // head
             glTranslatef(0.0,0.6,0.0);
             glutSolidSphere(0.2, 40, 40);
         glPopMatrix();
-        displayCone(0.1, 0.2, 0.1,0.6,0.0);
+        displayCone(0.1, 0.2, 0.1,0.6,0.0); // nose
+        glColor4f(0.0, 0.0, 0.0, 1.0);
+        glPushMatrix(); //eyes
+            glTranslatef(0.15,0.70,-0.1);
+            glutSolidSphere(0.025, 40, 40);
+            glTranslatef(0.0,0.0,0.2);
+            glutSolidSphere(0.025, 40, 40);
+        glPopMatrix();
     glPopMatrix();
 }
 
@@ -320,41 +332,48 @@ void mouseMotionCtrl(int x, int y){
 void keyboardCtrl(unsigned char key, int x, int y){
     if (verbose) printf("**** %s: %c \n", "key", key);
     switch (key){
-        case 'h':
-            displayHelp();
-            break;
-        case 'b':
-            verbose = !verbose;
-            break;
-        case 'v':
-            walls = !walls;
-        break;
-        case 'p':
-            ortho_camera = !ortho_camera;
-            configCamera();
-            break;
-        case 'c':
-            euler_look = !euler_look;
-            configCamera();
-            break;
-        case 'n':
-            b_sceneSphere = !b_sceneSphere;
-            break;
+        case 'h': displayHelp(); break;
+        case 27: case 'q': exit(0); break;
+        case 'b': verbose = !verbose; break;
+        case 'v': walls = !walls; break;
+        case 'n': b_sceneSphere = !b_sceneSphere; break;
+        case 'x': axis = !axis; break;
+        case 'p': ortho_camera = !ortho_camera; configCamera(); break;
+        case 'c': euler_look = !euler_look; configCamera(); break;
         case 'r':
             ortho_camera = 0;
-            rad_xyz[0] = rad_xyz[1] = rad_xyz[2] = 0.0;
+            rad_xyz[0] = rad_xyz[1] = rad_xyz[2] = zoom_factor = 0.0;
             cam.VRP[0] = cam.VRP[1] = cam.VRP[2] = 0.0;
+            patrick.p[0] = patrick.p[2] = patrick.r[0] = patrick.r[2] = 0.0;
+            patrick.p[1] = 0.5;
+            patrick.r[1] = 270.0;
+            patrick.speed = 0.2;
+            patrick.rotSpeed = patrick.rotTaf = 6.0;
             euler_look = true;
-            zoom_factor = 0.0;
             configCamera();
             break;
-        case 'x':
-            axis = !axis;
+        case 'w':
+            patrick.p[0] += sin(patrick.r[1]*M_PI/180.0) * patrick.speed;
+            patrick.p[2] += cos(patrick.r[1]*M_PI/180.0) * patrick.speed;
+            configCamera();
             break;
-        case 27:
-        case 'q':
-            exit(0);
-        break;
+        case 's':
+            patrick.p[0] -= sin(patrick.r[1]*M_PI/180.0) * patrick.speed;
+            patrick.p[2] -= cos(patrick.r[1]*M_PI/180.0) * patrick.speed;
+            configCamera();
+            break;
+        case 'a':
+            patrick.r[1] = capNum(0.0, 360.0,patrick.r[1] + patrick.rotSpeed);
+            if (patrick.r[1] == 360.0) patrick.r[1] = 0.0;
+            else if (patrick.r[1] == 0.0) patrick.r[1] = 360.0;
+            configCamera();
+            break;
+        case 'd':
+            patrick.r[1] = capNum(0.0, 360.0,patrick.r[1] - patrick.rotSpeed);
+            if (patrick.r[1] == 360.0) patrick.r[1] = 0.0;
+            else if (patrick.r[1] == 0.0) patrick.r[1] = 360.0;
+            configCamera();
+            break;
     }
     glutPostRedisplay();
 }
@@ -429,7 +448,8 @@ void displayScene(){
     }
     displayModel(m, 1.5, 2.5, 0.75, 2.5, 0.0, 0.0, 0.0);
 
-    displayModel(m, 1.0, pos[0], pos[1], pos[2], rot[0], rot[1], rot[2]);
+    displayModel(m, 1.0, patrick.p[0], patrick.p[1], patrick.p[2],
+        patrick.r[0], patrick.r[1], patrick.r[2]);
 
     displaySnowMan(2.5,0.4,-2.5);
     displaySnowMan(-2.5,0.4,2.5);
@@ -438,9 +458,9 @@ void displayScene(){
         displayWall(0.0,0.0,-4.9,10.0,1.5,0.2);
         displayWall(1.5,0.0,2.5,0.2,1.5,4);
     }
-    GLfloat aux[3] = {0.,0.,-2.};
-    rotateX(aux, 45.0);
-    printf("%s: (%f,%f,%f)+ \n", "aux",aux[0], aux[1], aux[2]);
+    // GLfloat aux[3] = {0.,0.,-2.};
+    // rotateX(aux, 45.0);
+    // printf("%s: (%f,%f,%f)+ \n", "aux",aux[0], aux[1], aux[2]);
 
     glColor4f(1.0, 1.0, 1.0, 1.0);
     displayFloor();
@@ -470,6 +490,13 @@ void iniGL(int argc, char const *argv[]){
     // Set up depth testing.
     glEnable(GL_DEPTH_TEST);
     m.load("../models/Patricio.obj");
+    patrick.p[0] = patrick.p[2] = 0.0;
+    patrick.p[1] = 0.5;
+
+    patrick.r[0] = patrick.r[2] = 0.0;
+    patrick.r[1] = 270.0;
+    patrick.speed = 0.2;
+    patrick.rotSpeed = patrick.rotTaf = 6.0;
 
     calculateModelBox(m);
     calculateSceneSphere();

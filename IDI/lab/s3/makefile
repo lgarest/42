@@ -3,6 +3,7 @@ CFLAGS=-lglut -lGL -lGLU
 FILENAME=B3_luis.garcia
 FILENAME1=B3_s1_luis.garcia
 FILENAME2=B3_s2_luis.garcia
+FILENAME22=b3_s2_2_luis.garcia
 FILENAME3=B3_s3_luis.garcia
 MODEL=../models/model.cpp
 
