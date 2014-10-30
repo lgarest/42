@@ -10,12 +10,11 @@ using namespace std;
 
 
 GLfloat ASPECT_RATIO = 1.0;
-GLint WindowSize[2]   = { 600, 600 };
-GLint currViewportSize[2] = { 600, 600 };
-GLfloat rad_xyz[3] = { 0.0, 0.0, 0.0};
+GLint WindowSize[2]   = {600, 600};
+GLint currViewportSize[2] = {600, 600};
+GLfloat rad_xyz[3] = {0.0, 330.0, 38.0};
 GLint lastClick[2];
 
-GLint currViewportStartPos[2] = { 0, 0 };
 GLfloat bckgrndColor[3] = {0.0, 0.0, 0.0};
 bool verbose=0, axis=0, l_click=0, r_click=0, euler_look=1, b_sceneSphere=0, walls=1;
 // ORTO == AXONOMETRICA != PERSPECTIVE
@@ -23,23 +22,29 @@ bool ortho_camera=0;
 float zoom_factor = 0.0;
 
 struct ModelBox {
-    double xmax;
-    double xmin;
-    double ymax;
-    double ymin;
-    double zmax;
-    double zmin;
-    vector<double> center;
-    double scale;
+    float xmax;
+    float xmin;
+    float ymax;
+    float ymin;
+    float zmax;
+    float zmin;
+    vector<float> center;
+    float scale;
+};
+struct FloorLimits{
+    float xmax;
+    float xmin;
+    float zmax;
+    float zmin;
 };
 
 struct SceneSphere {
-    double xmax;
-    double xmin;
-    double ymax;
-    double ymin;
-    double zmax;
-    double zmin;
+    float xmax;
+    float xmin;
+    float ymax;
+    float ymin;
+    float zmax;
+    float zmin;
     float radius;
     float diameter;
 };
@@ -63,13 +68,14 @@ MovableObject patrick;
 ModelBox mb;
 SceneSphere ss;
 Camera cam;
+FloorLimits fl;
 
 void configCamera();
 
 
-/***********************/
+/*************************************************************************/
 /* Auxiliar functions  */
-/***********************/
+/*************************************************************************/
 
 float capNum(float min, float max, float n){
     if (n>=max) n = max;
@@ -114,12 +120,14 @@ void rotateZ(GLfloat* v, float angle){
 
 void displayHelp(){
     printf("**************************************************************\n");
+    printf("**************************** HELP ****************************\n");
     printf("* %s \n", "Bloque 3 Luis Garcia Estrades grupo:13");
     printf("* %s \n", "'p' para cambiar entre perspectiva/axonometrica");
     printf("* %s \n", "'c' para cambiar entre euler/gluLookAt");
-    printf("* %s \n", "'r' para resetear la cámara");
-    printf("* %s \n", "'v' para mostrar/ocultar las paredes");
+    printf("* %s \n", "'r' para resetear la escena");
+    printf("* %s \n\n", "'v' para mostrar/ocultar las paredes");
 
+    printf("* %s \n", "'w', 'a', 's', 'd' para mover a patrick");
     printf("* %s \n", "'n' para mostrar/ocultar la esfera de la escena");
     printf("* %s \n", "'x' para mostrar/ocultar los ejes");
     printf("* %s \n", "'q' o 'esc' para cerrar el programa");
@@ -175,8 +183,8 @@ void displayFloor(){
 }
 
 void calculateSceneSphere(){
-    ss.xmin = ss.zmin = -5.0;
-    ss.xmax = ss.zmax = 5.0;
+    ss.xmin = ss.zmin = fl.xmin = fl.zmin = -5.0;
+    ss.xmax = ss.zmax = fl.xmax = fl.zmax = 5.0;
     ss.ymin = 0.0;
     ss.ymax = 2.25;
     ss.diameter = sqrt(pow((ss.xmax-ss.xmin), 2.0) +
@@ -201,7 +209,7 @@ void calculateModelBox(Model &m){
         if(mb.zmax<m.vertices()[i+2]) mb.zmax = m.vertices()[i+2];
     }
     // we set the central point for each model axis
-    mb.center = vector<double> (3, 0.0);
+    mb.center = vector<float> (3, 0.0);
     mb.center[0] = (mb.xmin + mb.xmax)/2;
     mb.center[1] = (mb.ymin + mb.ymax)/2;
     mb.center[2] = (mb.zmin + mb.zmax)/2;
@@ -301,9 +309,9 @@ void displayWall(float x, float y, float z, float w, float h, float d){
     glPopMatrix();
 }
 
-/*************************/
+/***************************************************************************/
 /* Controller functions  */
-/*************************/
+/***************************************************************************/
 
 void mousePressCtrl(int button, int state, int x, int y){
     l_click = button == GLUT_LEFT_BUTTON && state == GLUT_DOWN;
@@ -329,6 +337,31 @@ void mouseMotionCtrl(int x, int y){
     configCamera();
 }
 
+void movePatrick(string s){
+    if (s == "forward"){
+        float auxx = patrick.p[0] + sin(patrick.r[1]*M_PI/180.0) * patrick.speed;
+        float auxz = patrick.p[2]+cos(patrick.r[1]*M_PI/180.0) * patrick.speed;
+        patrick.p[0] = capNum(fl.xmin+0.1, fl.xmax-0.1, auxx);
+        patrick.p[2] = capNum(fl.zmin+0.1, fl.zmax-0.1, auxz);
+    }
+    else if (s == "backwards"){
+        float auxx = patrick.p[0]-sin(patrick.r[1]*M_PI/180.0) * patrick.speed;
+        float auxz = patrick.p[2]-cos(patrick.r[1]*M_PI/180.0) * patrick.speed;
+        patrick.p[0] = capNum(fl.xmin+0.1, fl.xmax-0.1, auxx);
+        patrick.p[2] = capNum(fl.zmin+0.1, fl.zmax-0.1, auxz);
+    }
+    else if (s == "left"){
+        patrick.r[1] = capNum(0.0, 360.0,patrick.r[1] + patrick.rotSpeed);
+        if (patrick.r[1] == 360.0) patrick.r[1] = 0.0;
+        else if (patrick.r[1] == 0.0) patrick.r[1] = 360.0;
+    }
+    else if (s == "right"){
+        patrick.r[1] = capNum(0.0, 360.0,patrick.r[1] - patrick.rotSpeed);
+        if (patrick.r[1] == 360.0) patrick.r[1] = 0.0;
+        else if (patrick.r[1] == 0.0) patrick.r[1] = 360.0;
+    }
+}
+
 void keyboardCtrl(unsigned char key, int x, int y){
     if (verbose) printf("**** %s: %c \n", "key", key);
     switch (key){
@@ -342,7 +375,9 @@ void keyboardCtrl(unsigned char key, int x, int y){
         case 'c': euler_look = !euler_look; configCamera(); break;
         case 'r':
             ortho_camera = 0;
-            rad_xyz[0] = rad_xyz[1] = rad_xyz[2] = zoom_factor = 0.0;
+            rad_xyz[0] = zoom_factor = 0.0;
+            rad_xyz[1] = 330.0;
+            rad_xyz[2] = 38.0;
             cam.VRP[0] = cam.VRP[1] = cam.VRP[2] = 0.0;
             patrick.p[0] = patrick.p[2] = patrick.r[0] = patrick.r[2] = 0.0;
             patrick.p[1] = 0.5;
@@ -352,28 +387,10 @@ void keyboardCtrl(unsigned char key, int x, int y){
             euler_look = true;
             configCamera();
             break;
-        case 'w':
-            patrick.p[0] += sin(patrick.r[1]*M_PI/180.0) * patrick.speed;
-            patrick.p[2] += cos(patrick.r[1]*M_PI/180.0) * patrick.speed;
-            configCamera();
-            break;
-        case 's':
-            patrick.p[0] -= sin(patrick.r[1]*M_PI/180.0) * patrick.speed;
-            patrick.p[2] -= cos(patrick.r[1]*M_PI/180.0) * patrick.speed;
-            configCamera();
-            break;
-        case 'a':
-            patrick.r[1] = capNum(0.0, 360.0,patrick.r[1] + patrick.rotSpeed);
-            if (patrick.r[1] == 360.0) patrick.r[1] = 0.0;
-            else if (patrick.r[1] == 0.0) patrick.r[1] = 360.0;
-            configCamera();
-            break;
-        case 'd':
-            patrick.r[1] = capNum(0.0, 360.0,patrick.r[1] - patrick.rotSpeed);
-            if (patrick.r[1] == 360.0) patrick.r[1] = 0.0;
-            else if (patrick.r[1] == 0.0) patrick.r[1] = 360.0;
-            configCamera();
-            break;
+        case 'w': movePatrick("forward"); configCamera(); break;
+        case 'a': movePatrick("left"); configCamera(); break;
+        case 's': movePatrick("backwards"); configCamera(); break;
+        case 'd': movePatrick("right"); configCamera(); break;
     }
     glutPostRedisplay();
 }
@@ -400,7 +417,6 @@ void configLookAt(){
 void configCameraPosition(){
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
     if(euler_look) configEuler();
     else if(!euler_look) configLookAt();
 }
