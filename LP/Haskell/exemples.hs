@@ -3,7 +3,7 @@
 -- no l'useu massa!
 prod :: Int -> Int -> Int
 prod n m = if n == 0 then 0
-       	   else n + prod (n-1) m
+       	   else m + prod (n-1) m
 
 -- exemple ús pattern matching
 --sumar els elements d'una llista
