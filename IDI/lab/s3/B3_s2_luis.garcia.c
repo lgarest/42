@@ -16,7 +16,7 @@ GLfloat rad_xyz[3] = {0.0, 330.0, 38.0};
 GLint lastClick[2];
 
 GLfloat bckgrndColor[3] = {0.0, 0.0, 0.0};
-bool verbose=0, axis=0, l_click=0, r_click=0, euler_look=1, b_sceneSphere=0, walls=1;
+bool verbose=0, axis=0, l_click=0, r_click=0, euler_look=1, b_sceneSphere=0, walls=1, first_person=0;
 // ORTO == AXONOMETRICA != PERSPECTIVE
 bool ortho_camera=0;
 float zoom_factor = 0.0;
@@ -124,6 +124,7 @@ void displayHelp(){
     printf("* %s \n", "Bloque 3 Luis Garcia Estrades grupo:13");
     printf("* %s \n", "'p' para cambiar entre perspectiva/axonometrica");
     printf("* %s \n", "'c' para cambiar entre euler/gluLookAt");
+    printf("* %s \n", "'t' para des/habilitar entre 1ª vista");
     printf("* %s \n", "'r' para resetear la escena");
     printf("* %s \n\n", "'v' para mostrar/ocultar las paredes");
 
@@ -324,13 +325,13 @@ void mousePressCtrl(int button, int state, int x, int y){
 }
 
 void mouseMotionCtrl(int x, int y){
-    if (l_click){
+    if (l_click and !first_person){
         rad_xyz[2] = capNum(-89.0, 89.0, rad_xyz[2] + float(y - lastClick[0]));
         rad_xyz[1] = capNum(0.0, 360.0, rad_xyz[1] + float(x - lastClick[1]));
         if (rad_xyz[1] == 360.0) rad_xyz[1] = 0.0;
         else if (rad_xyz[1] == 0.0) rad_xyz[1] = 360.0;
     }
-    if (r_click)
+    if (r_click and !first_person)
         zoom_factor = capNum(-40., 40., zoom_factor + float(y-lastClick[0]));
     lastClick[0] = y;
     lastClick[1] = x;
@@ -371,8 +372,8 @@ void keyboardCtrl(unsigned char key, int x, int y){
         case 'v': walls = !walls; break;
         case 'n': b_sceneSphere = !b_sceneSphere; break;
         case 'x': axis = !axis; break;
-        case 'p': ortho_camera = !ortho_camera; configCamera(); break;
-        case 'c': euler_look = !euler_look; configCamera(); break;
+        case 'p':  ortho_camera = !ortho_camera; first_person=0; configCamera(); break;
+        case 'c': first_person=0; euler_look = !euler_look; configCamera(); break;
         case 'r':
             ortho_camera = 0;
             rad_xyz[0] = zoom_factor = 0.0;
@@ -391,6 +392,7 @@ void keyboardCtrl(unsigned char key, int x, int y){
         case 'a': movePatrick("left"); configCamera(); break;
         case 's': movePatrick("backwards"); configCamera(); break;
         case 'd': movePatrick("right"); configCamera(); break;
+        case 't': first_person = !first_person; euler_look=0; ortho_camera=0; configCamera(); break;
     }
     glutPostRedisplay();
 }
@@ -403,15 +405,20 @@ void configEuler(){
 }
 
 void configLookAt(){
-    cam.OBS[0] = cam.VRP[2] + ss.diameter
-            * sin(toRads(rad_xyz[2])) * cos(toRads(rad_xyz[1]));
-    cam.OBS[1] = cam.VRP[1] + ss.diameter
-        * -cos(toRads(rad_xyz[2]));
-    cam.OBS[2] = cam.VRP[0] + ss.diameter
-        * sin(toRads(rad_xyz[2])) * sin(toRads(rad_xyz[1]));
-    gluLookAt(cam.OBS[0],cam.OBS[1],cam.OBS[2],
-              cam.VRP[0],cam.VRP[1],cam.VRP[2],
-              cam.UP[0],cam.UP[1],cam.UP[2]);
+    if (first_person and !euler_look){
+        gluLookAt(patrick.p[0], 1, patrick.p[2], patrick.p[0] + sin(patrick.r[1]*M_PI/180.0), 1, patrick.p[2] + cos(patrick.r[1]*M_PI/180.0), cam.UP[0], cam.UP[1], cam.UP[2]);
+    }
+    else{
+        cam.OBS[0] = cam.VRP[2] + ss.diameter
+                * sin(toRads(rad_xyz[2])) * cos(toRads(rad_xyz[1]));
+        cam.OBS[1] = cam.VRP[1] + ss.diameter
+            * -cos(toRads(rad_xyz[2]));
+        cam.OBS[2] = cam.VRP[0] + ss.diameter
+            * sin(toRads(rad_xyz[2])) * sin(toRads(rad_xyz[1]));
+        gluLookAt(cam.OBS[0],cam.OBS[1],cam.OBS[2],
+                  cam.VRP[0],cam.VRP[1],cam.VRP[2],
+                  cam.UP[0],cam.UP[1],cam.UP[2]);
+    }
 }
 
 void configCameraPosition(){
@@ -441,7 +448,8 @@ void configCamera(){
         float angle = asin(ss.radius / ss.diameter);
         if (ASPECT_RATIO < 1.0) angle = atan(tan(angle) / ASPECT_RATIO);
         angle = (angle * 180) / M_PI;
-        gluPerspective(2 * angle + zoom_factor, ASPECT_RATIO, zNear, zFar);
+        if(first_person) gluPerspective(2 * angle, ASPECT_RATIO, 0.1, zFar);
+        else gluPerspective(2 * angle + zoom_factor, ASPECT_RATIO, zNear, zFar);
     }
 
     configCameraPosition();
