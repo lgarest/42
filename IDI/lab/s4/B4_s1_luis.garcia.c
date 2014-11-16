@@ -192,7 +192,6 @@ void displayFloor(){
         glMaterialfv(GL_FRONT, GL_DIFFUSE, floor_diffuse);
         glMaterialfv(GL_FRONT, GL_SPECULAR, floor_specular);
         glMaterialfv(GL_FRONT, GL_SHININESS, floor_shininess);
-        // glColor4f(0.298,0.6,0.0,1.0);
         glNormal3f(0.0,1.0,0.0);
         glVertex3f(-5, 0.0, -5);
         glVertex3f(-5, 0.0, 5);
@@ -517,7 +516,7 @@ void displayLight(GLfloat x, GLfloat y, GLfloat z){
     glPopMatrix();
 }
 
-void updateLights(){
+void configLights(){
 
     if (scene_light && lighting) glEnable(GL_LIGHT0);
     else glDisable(GL_LIGHT0);
@@ -555,20 +554,22 @@ void updateLights(){
 void setLights(){
     glEnable(GL_LIGHTING);
 
+    // set scene light colors
     glLightfv(GL_LIGHT0, GL_AMBIENT,  light0_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE,  light0_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light0_specular);
 
+    // set camera light colors
     glLightfv(GL_LIGHT1, GL_AMBIENT,  light1_ambient);
     glLightfv(GL_LIGHT1, GL_DIFFUSE,  light1_diffuse);
     glLightfv(GL_LIGHT1, GL_SPECULAR, light1_specular);
 
+    // set patrick light colors
     glLightfv(GL_LIGHT2, GL_AMBIENT,  light1_ambient);
     glLightfv(GL_LIGHT2, GL_DIFFUSE,  light1_diffuse);
     glLightfv(GL_LIGHT2, GL_SPECULAR, light1_specular);
 
     glLightfv(GL_LIGHT0, GL_POSITION, light0_pos1);
-    // displayLight(LIGHT_1_POSITION_1[0],LIGHT_1_POSITION_1[1],LIGHT_1_POSITION_1[2]);
 }
 
 void displayScene(){
@@ -597,7 +598,7 @@ void displayScene(){
 void refresh(void){
     glClearColor(0.0,0.0,0.0,1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    updateLights();
+    configLights();
 
     displayScene();
 
