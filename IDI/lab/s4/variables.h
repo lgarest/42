@@ -1,6 +1,6 @@
 using namespace std;
 
-//snowman materials
+// snowman materials
 GLfloat snowMan_diffuse[3]   = {1.0, 1.0, 1.0};
 GLfloat snowMan_ambient[3]   = {0.5, 0.5, 0.5};
 GLfloat snowMan_specular[3]  = {0.0, 0.0, 0.0};
@@ -55,3 +55,16 @@ GLfloat light0_pos1[]  = {5, 0.1, 5, 1};
 GLfloat light0_pos2[]  = {5, 0.1, -5, 1};
 GLfloat light0_pos3[]  = {-5, 0.1, -5, 1};
 GLfloat light0_pos4[]  = {-5, 0.1, 5, 1};
+
+// Axis indicators material
+GLfloat axis_specular[3]  = {0.0, 0.0, 0.0};
+GLfloat axis_shininess[3] = {0.0, 0.0, 0.0};
+
+GLfloat axis_red_ambient[3]   = {1.0, 0.0, 0.0};
+GLfloat axis_red_diffuse[3]   = {1.0, 0.0, 0.0};
+
+GLfloat axis_green_ambient[3]   = {0.0, 1.0, 0.0};
+GLfloat axis_green_diffuse[3]   = {0.0, 1.0, 0.0};
+
+GLfloat axis_blue_ambient[3]   = {0.0, 0.0, 1.0};
+GLfloat axis_blue_diffuse[3]   = {0.0, 0.0, 1.0};
