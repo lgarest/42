@@ -507,20 +507,10 @@ void calculateVisionVector(){
     cam.panY[0] = cam.UP[0];
     cam.panY[1] = cam.UP[1];
     cam.panY[2] = cam.UP[2];
-    // vectorialMult(cam.panY, cam.visionVector, cam.panX);
 }
 
 void configCameraPaning(){
     calculateVisionVector();
-
-    // printf("%s: (%f,%f,%f)\n", "cam.VRP", cam.VRP[0], cam.VRP[1], cam.VRP[2]);
-    // printf("%s: (%f,%f,%f)\n", "cam.OBS", cam.OBS[0], cam.OBS[1], cam.OBS[2]);
-
-    // printf("%s: (%f,%f,%f)\n", "cam.visionVector", cam.visionVector[0], cam.visionVector[1], cam.visionVector[2]);
-
-    // printf("%s: (%f,%f,%f)\n", "cam.panX", cam.panX[0], cam.panX[1], cam.panX[2]);
-    // printf("%s: (%f,%f,%f)\n", "cam.panY", cam.panY[0], cam.panY[1], cam.panY[2]);
-    // printf("%s: (%f,%f)\n\n", "cam.panIncXY", cam.panIncXY[0], cam.panIncXY[1]);
 
     // camera paning
     cam.VRP[0] += (cam.panIncXY[0] * cam.panX[0] +
@@ -574,7 +564,6 @@ void configCameraPosition(){
         * cos(toRads(rad_xyz[2],-90.0));
     cam.OBS[2] = cam.VRP[0] + ss.diameter
         * sin(toRads(rad_xyz[2],-90.0)) * sin(toRads(rad_xyz[1],-90.0));
-
 
     // set the camera on observer position
     if(euler_look && !first_person) configEuler();
@@ -783,8 +772,6 @@ void resizeCtrl(int w, int h){
 void refreshCtrl(void){
     glClearColor(0.,0.,0.,1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // configCamera(); // camera configuration
 
     configLights(); // lighting configuration
 
