@@ -15,7 +15,7 @@ using namespace std;
 
 GLfloat aspect_ratio = 1.0;
 GLint window_size[2] = {600, 600};
-GLfloat rad_xyz[3] = {0., 0., 0.0}; // camera rotation angles
+GLfloat rad_xyz[3] = {0., 325., 33.0}; // camera rotation angles
 GLint last_click[2];
 
 bool verbose = 0;         // verbose or debug mode
@@ -204,8 +204,8 @@ void reset(){
     cam.panIncXY[0] = cam.panIncXY[1] = 0.0;
     cam.panIncEulerXY[0] = cam.panIncEulerXY[1] = 0.0;
     rad_xyz[0] = 0.0;
-    rad_xyz[1] = 0.0;
-    rad_xyz[2] = 0.0;
+    rad_xyz[1] = 325.0;
+    rad_xyz[2] = 33.0;
     zoom_factor = 0.0;
     cam.VRP[0] = cam.VRP[1] = cam.VRP[2] = 0.0;
 
