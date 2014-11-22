@@ -36,7 +36,7 @@ removeItem l r = [y | y <- l, y /= r]
 --    |  x == r = (removeItem xs r)
 --    | otherwise = x:(removeItem xs r)
 
---infiniteList = [[a..]|a<-[1..]]
+-- infiniteList = [[a..]|a<-[1..]]
 
 flatten :: [[Int]] -> [Int]
 flatten [] = []
