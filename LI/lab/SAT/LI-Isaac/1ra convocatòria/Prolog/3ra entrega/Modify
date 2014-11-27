@@ -1,2 +1,0 @@
-Canviar la funció que no permet repeticions, ja que crec que el que no permet és p.ex: 161 i 611, però
-sí que permet 161 i 612. (mirar out i resultat actuals).
