@@ -16,7 +16,10 @@ type Position = [Int]
 -- snd: substitution term of fst
 -- es diferente de una regla
 -- ej: [("a","b")]
-type Substitution a = [(a, a)]
+data Substitution a = Substitution [(a, a)]
+
+instance (Show a) => Show (Substitution a) where
+    show(Substitution l) = show l
 
 class Rewrite a where
     getVars :: a -> [a]
@@ -82,10 +85,20 @@ instance Rewrite (RString) where
     getVars _ = []
     -- valida un RString: definido por la signatura y bien formado
     valid signature str = (wellComposed str) && (strInSignat signature str)
-    match str1 str2 = [] {- TODO -}
-    apply str substi = str {- TODO -}
+
+    match str1 str2 = matchC str1 str2 0
+
+    {- apply, que rep un RString i una substitucio de RStrings
+    i retorna l’objecte resultant de substituir les variables pels RStrings de la substitucio. -}
+    --apply str (Substitution [(ab->c),(ca->de)]) = str
+    apply str (Substitution s) = foldl (\x y -> applyChange x y) str s
+
+    {- replace, que rep un objecte de tipus a i una llista de parells de Position i objecte de tipus a i retorna el resultat de canviar cada subobjecte del primer parametre en una de les posicions donades per l’objecte que l’acompanya. En aquesta funcio podeu assumir que cap de les posicions donades es solapa.
+    Noteu que dues posicions son solapades quan una indica un subobjecte de
+    l’altre. -}
     replace str lista = str {- TODO -}
-    evaluate str = str {- TODO -}
+
+    evaluate str = str
 
 -- comprueba que el primer caracter del string no sea numero
 wellComposed :: RString -> Bool
@@ -98,6 +111,16 @@ strInSignat sign str = and $ map (symbolInSignat sign) (getSymbols str)
 -- comprueba que un simbolo esta en la signatura
 symbolInSignat :: Signature -> RString -> Bool
 symbolInSignat sign str = elem (show str) (map fst sign)
+
+
+matchC :: RString -> RString -> Int -> [(Position, Substitution a)]
+matchC str a n
+    | length' a == 0 = []
+    | take' (length' str) a == str = [([n], Substitution [])] ++ rec
+    | otherwise = matchC str (tail' a) (n+1)
+    where rec = matchC str (drop' (length' str) a) (n+1)
+
+applyChange str (a,b) = str
 
 --getChars :: RString -> RString
 --getChars (RString str) = readRString $ takeWhile (\x -> isChar [x]) str
@@ -170,6 +193,14 @@ myStrings = readRStringSystem [("a","z"), ("b","y"), ("c","x")]
 myString = readRString "a1b2a13"
 myString2 = readRString "abc1b2a13"
 
+sign1 :: Signature
+sign1 = [("a",0),("b",0),("1",0),("2",0)]
+sign2 :: Signature
+sign2 = [("a1",0),("b2",0)]
+string1 = readRString "a1b2"
+valid sign1 string1 -- False
+valid sign2 string1 -- True
+
 
 ----let myRString = readRString "wrrbbwrrwwbbwrbrbww"
 --myAbc = (map (\x -> readRString[x]) ['a'..'z'])
@@ -178,6 +209,3 @@ myString2 = readRString "abc1b2a13"
 --myCleanRString = takeWhile (\x -> isChar [x]) (show myString2)
 --myCleanRString2 = takeWhile (\x -> isChar [x]) "abc1b2a13"
 --myWtf = readRString myCleanRString2
-
---a = getChars myString
---b = getNums $ tail' myString
