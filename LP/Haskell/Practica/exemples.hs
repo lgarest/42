@@ -9,12 +9,12 @@ myStringSignature :: Signature
 myStringSignature = [("b",0),("w",0),("r",0)]
 
 myStringSystem = readRStringSystem [
-  ("wb" , "bw" ),
-  ("rb" , "br" ),
-  ("rw" , "wr" )
+  ("wb" , "bw"),
+  ("rb" , "br"),
+  ("rw" , "wr")
   ]
 
-myRString = readRString "wrrbbwrrwwbbwrbrbww" 
+myRString = readRString "wrrbbwrrwwbbwrbrbww"
 
 -- Si heu posat les definicions, podeu fer aquestes crides
 -- despres de carregar amb ghci

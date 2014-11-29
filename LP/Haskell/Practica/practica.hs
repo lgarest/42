@@ -30,6 +30,8 @@ class Rewrite a where
     evaluate :: a -> a
 
 {- 3. Rule & RewriteSystem --------------------------------------------------}
+
+{- 3.1 -}
 data Rule a = Rule a a
 
 data RewriteSystem a = RewriteSystem[Rule a]
@@ -48,6 +50,10 @@ validRule sign (Rule a b) = (valid sign a) && (valid sign b)
 validRewriteSystem :: Rewrite a => Signature -> RewriteSystem a -> Bool
 validRewriteSystem sign (RewriteSystem rs) = and $ map (validRule sign) rs
 
+{- 3.2 -}
+type Strategy a = [(Position, a)] -> [(Position, a)]
+
+{- 3.3 -}
 
 {- 4. RString ---------------------------------------------------------------}
 
@@ -88,15 +94,14 @@ instance Rewrite (RString) where
 
     match str1 str2 = matchC str1 str2 0
 
-    {- apply, que rep un RString i una substitucio de RStrings
-    i retorna l’objecte resultant de substituir les variables pels RStrings de la substitucio. -}
-    --apply str (Substitution [(ab->c),(ca->de)]) = str
     apply str (Substitution s) = foldl (\x y -> applyChange x y) str s
 
-    {- replace, que rep un objecte de tipus a i una llista de parells de Position i objecte de tipus a i retorna el resultat de canviar cada subobjecte del primer parametre en una de les posicions donades per l’objecte que l’acompanya. En aquesta funcio podeu assumir que cap de les posicions donades es solapa.
-    Noteu que dues posicions son solapades quan una indica un subobjecte de
-    l’altre. -}
-    replace str lista = str {- TODO -}
+    replace str lista = foldl (\x y ->
+        if (length $ fst y) == 1 then
+            applyOnPos str (head $ fst y) (length' $ snd y) (snd y)
+        else
+            applyOnPos str (head $ fst y) ((last $ fst y)-(head $ fst y)) (snd y)
+        ) str lista
 
     evaluate str = str
 
@@ -120,7 +125,17 @@ matchC str a n
     | otherwise = matchC str (tail' a) (n+1)
     where rec = matchC str (drop' (length' str) a) (n+1)
 
-applyChange str (a,b) = str
+--applyChange s (a,b) = foldl(\s y m -> applyOnPos s (head $ fst y) m b)
+--    s (match a s) (length' a)
+--(RString, RString)
+applyChange :: RString -> (RString,RString) -> RString
+applyChange s (a,b) = foldl(\x y -> applyOnPos x (head $ fst y) m b) s (match a s)
+    where m = length' a
+-- inyecta en la posicion n (comiendo m caracteres) de a el string b
+applyOnPos :: RString -> Int -> Int -> RString -> RString
+applyOnPos a n m b = concat' (concat' prefix b) sufix
+    where prefix = take' n a
+          sufix = drop' (n+m) a
 
 --getChars :: RString -> RString
 --getChars (RString str) = readRString $ takeWhile (\x -> isChar [x]) str
@@ -137,9 +152,8 @@ getSymbols :: RString -> [RString]
 getSymbols str
     | length' symbol == 0 = []
     | otherwise = [symbol] ++ getSymbols next
-    where
-        symbol = getSymbol str
-        next = drop' (length' symbol) str
+    where symbol = getSymbol str
+          next = drop' (length' symbol) str
 
 {- UNUSED -}
 rStrTChar :: RString -> [Char]
@@ -193,13 +207,14 @@ myStrings = readRStringSystem [("a","z"), ("b","y"), ("c","x")]
 myString = readRString "a1b2a13"
 myString2 = readRString "abc1b2a13"
 
-sign1 :: Signature
-sign1 = [("a",0),("b",0),("1",0),("2",0)]
-sign2 :: Signature
-sign2 = [("a1",0),("b2",0)]
-string1 = readRString "a1b2"
-valid sign1 string1 -- False
-valid sign2 string1 -- True
+--sign1 :: Signature
+--sign1 = [("a",0),("b",0),("1",0),("2",0)]
+--sign2 :: Signature
+--sign2 = [("a1",0),("b2",0)]
+--string1 = readRString "a1b2"
+
+--show $ valid sign1 string1
+--show $ valid sign2 string1
 
 
 ----let myRString = readRString "wrrbbwrrwwbbwrbrbww"
@@ -209,3 +224,28 @@ valid sign2 string1 -- True
 --myCleanRString = takeWhile (\x -> isChar [x]) (show myString2)
 --myCleanRString2 = takeWhile (\x -> isChar [x]) "abc1b2a13"
 --myWtf = readRString myCleanRString2
+
+--applyOnPos (readRString "e1") 0 (readRString "re")
+
+macia = readRString "Macia es un capullo!!"
+luis = readRString "Luis es muy feo kuekuek"
+aina = readRString "Aina es una patosa"
+
+cambio = Substitution [
+    (readRString "capullo",readRString "gay"),
+    (readRString "feo", readRString "guapo"),
+    (readRString "patosa",readRString "patosa que te cagas")]
+
+
+
+str1 = RString "ababa"
+str2 = RString "lpshit"
+pos1 :: Position
+pos1 = [2]
+pos2 :: Position
+pos2 = [2,2]
+pos3 :: Position
+pos3 = [2,4]
+lista1 = [(pos1, str2)]
+lista2 = [(pos2, str2)]
+lista3 = [(pos3, str2)]
