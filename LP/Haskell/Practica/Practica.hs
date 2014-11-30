@@ -1,21 +1,17 @@
+module Practica where
+
+{- Author: Luis García Estrades Group:13 -}
+
 {- Variables globales -------------------------------------------------------}
 stringedABC = (map (\x -> [x]) ['a'..'z'])
 stringedNums = (map (\x->show x) [0..9])
 
 {- 2. Rewrite ---------------------------------------------------------------}
--- vocabulario ("diccionario" en los strings)
--- fst: identificator to construct objects (letra/s)
--- snd: # of arguments given
--- ej: f(x,x) = [("f",2), ("x",0)]
+
 type Signature = [(String, Integer)]
 
--- indicator of position inside of an object
 type Position = [Int]
 
--- fst: variable
--- snd: substitution term of fst
--- es diferente de una regla
--- ej: [("a","b")]
 data Substitution a = Substitution [(a, a)]
 
 instance (Show a) => Show (Substitution a) where
@@ -32,12 +28,7 @@ class Rewrite a where
 {- 3. Rule & RewriteSystem --------------------------------------------------}
 
 {- 3.1 -}
---noSubs :: Rewrite a => [(Position, Substitution a)] -> [(Position, a)]
-noSubs :: [(t1, Substitution t)] -> [(t1, [(t, t)])]
-noSubs [] = []
-noSubs ((p, Substitution s):xs) = [(p,s)] ++ noSubs xs
-
-data Rule a = Rule a a
+data Rule a = Rule a a | EmptyRule
 
 data RewriteSystem a = RewriteSystem[Rule a]
 
@@ -49,44 +40,47 @@ instance (Show a) => Show (RewriteSystem a) where
     show(RewriteSystem (a:[])) = show a
     show(RewriteSystem (a:as)) = show a ++ "\n" ++ show(RewriteSystem as)
 
+-- comprueba que una regla sea válida
 validRule :: (Rewrite a) => Signature -> (Rule a)-> Bool
+validRule sign EmptyRule = False
 validRule sign (Rule a b) = (valid sign a) && (valid sign b)
 
+-- comprueba que un RWS sea válido
 validRewriteSystem :: Rewrite a => Signature -> RewriteSystem a -> Bool
 validRewriteSystem sign (RewriteSystem rs) = and $ map (validRule sign) rs
-
 
 {- 3.2 -}
 type Strategy a = [(Position, a)] -> [(Position, a)]
 
 {- 3.3 -}
+-- aplica una reescritura según un RWS y una estrategia
 oneStepRewrite :: Rewrite a => RewriteSystem a -> a -> Strategy a -> a
 oneStepRewrite (RewriteSystem sys) s strategy
-    | not $ matchSomething (RewriteSystem sys) s = s
+    | not $ matchSmth (RewriteSystem sys) s = s
     | otherwise = foldl(\x y -> replace x [y]) s matches
     where matches = strategy $ (getMatches (RewriteSystem sys) s)
 
+-- reescribre un objeto según un RWS y una estrategia
 rewrite :: Rewrite a => RewriteSystem a -> a -> Strategy a -> a
-rewrite rws s stgy
-    | not $ matchSomething rws s = s
-    | otherwise = rewrite rws (evaluate (oneStepRewrite rws s stgy)) stgy
+rewrite rws a stgy
+    | not $ matchSmth rws a = a
+    | otherwise = rewrite rws (evaluate (oneStepRewrite rws a stgy)) stgy
 
+-- aplica oneStepRewrite n veces
 nrewrite :: Rewrite a => RewriteSystem a -> a -> Strategy a -> Int -> a
-nrewrite rws s stgy n
-    | n == 0 = s
-    | not $ matchSomething rws s = s
-    | otherwise = nrewrite rws (evaluate (oneStepRewrite rws s stgy)) stgy (n-1)
+nrewrite rws a stgy n
+    | n == 0 = a
+    | not $ matchSmth rws a = a
+    | otherwise = nrewrite rws (evaluate (oneStepRewrite rws a stgy)) stgy (n-1)
 
--- applyOnPos a n m b
-
---[(Position, Substitution RString)]
-
---match str1 str2
+-- devuelve todos los matches de las reglas de un RWS sobre un obj
 getMatches :: Rewrite a => RewriteSystem a -> a -> [(Position, a)]
 getMatches (RewriteSystem []) _ = []
-getMatches (RewriteSystem ((Rule a b):rules)) str = smatch ++ getMatches (RewriteSystem rules) str
-    where smatch = (map(\(x,Substitution y) -> (x,b)) (match a str))
+getMatches (RewriteSystem ((Rule a b):rules)) o = smatch ++
+    getMatches (RewriteSystem rules) o
+    where smatch = (map(\(x,Substitution y) -> (x,b)) (match a o))
 
+-- ordenación por quicksort de lista de duplas genéricas
 sort :: Ord a => [(a, b)] -> [(a, b)]
 sort [] = []
 sort [x] = [x]
@@ -94,38 +88,42 @@ sort l@(x:xs) = sort [b | b <- xs, fst b <= fst x] ++ [x] ++
     sort [b | b <- xs, fst b > fst x]
 
 -- devuelve si alguna regla hace matching con el string
-matchSomething :: Rewrite a => RewriteSystem a -> a -> Bool
-matchSomething (RewriteSystem []) _ = False
-matchSomething (RewriteSystem ((Rule a b):rules)) str
+matchSmth :: Rewrite a => RewriteSystem a -> a -> Bool
+matchSmth (RewriteSystem []) _ = False
+matchSmth (RewriteSystem ((Rule a b):rules)) str
     | length (match a str) /= 0 = True
-    | otherwise = matchSomething (RewriteSystem (rules)) str
+    | otherwise = matchSmth (RewriteSystem (rules)) str
 
 {- 4. RString ---------------------------------------------------------------}
 
 {- Helpers -}
-isChar :: String -> Bool
-isChar str = elem str stringedABC
-
+-- devuelve si un String es un número
 isNum :: String -> Bool
 isNum str = elem str stringedNums
 
+-- head sobre RString
 head' :: RString -> RString
 head' (RString []) = readRString ""
 head' (RString str) = readRString $ [head str]
 
+-- tail sobre RString
 tail' :: RString -> RString
 tail' (RString []) = readRString ""
 tail' (RString str) = readRString $ tail str
 
+-- longitud de un RString
 length' :: RString -> Int
 length' (RString str) = length str
 
+-- hace take sobre un RString
 take' :: Int -> RString -> RString
 take' n (RString str) = readRString (take n str)
 
+-- hace drop sobre un RString
 drop' :: Int -> RString -> RString
 drop' n (RString str) = readRString (drop n str)
 
+-- (++) de dos RStrings
 concat' :: RString -> RString -> RString
 concat' (RString str1) (RString str2) = readRString $ str1 ++ str2
 
@@ -171,10 +169,21 @@ matchC str a n
     where rec = matchC str (drop' (length' str) a) (n+(length' str))
 
 -- aplica el cambio del snd donde haga matching el fst en el primer parámetro
+--applyChange :: RString -> (RString,RString) -> RString
+--applyChange s (a,b) = foldl(\x y ->
+--    applyOnPos x (head $ fst y) m b) s (match a s)
+--    where m = length' a
+
+-- | length' s == 0 = s
 applyChange :: RString -> (RString,RString) -> RString
-applyChange s (a,b) = foldl(\x y ->
-    applyOnPos x (head $ fst y) m b) s (match a s)
-    where m = length' a
+applyChange s (a,b)
+    | length (match a s) == 0 = s
+    | otherwise = concat' (applyOnPos actual n m b) (applyChange next (a,b))
+    where
+        n = head $ fst $ head(match a s)
+        m = length' b
+        actual = take' (n+m) s
+        next = drop' (n+m+1) s
 
 -- inyecta en la posicion n (comiendo m caracteres) de a el string b
 applyOnPos :: RString -> Int -> Int -> RString -> RString
@@ -182,17 +191,17 @@ applyOnPos a n m b = concat' (concat' prefix b) sufix
     where prefix = take' n a
           sufix = drop' (n+m) a
 
---getChars :: RString -> RString
---getChars (RString str) = readRString $ takeWhile (\x -> isChar [x]) str
-
+-- devuelve un RString con todos los numeros que haya desde el principio de str
 getNums :: RString -> RString
 getNums (RString str) = readRString $ takeWhile (\x -> isNum [x]) str
 
+-- devuelve el primer simbolo del str
 getSymbol :: RString -> RString
 getSymbol str
     | length' (getNums $ tail' str) == 0 = head' str
     | otherwise = concat' (head' str) (getNums $ tail' str)
 
+-- devuelve los símbolos por los que está compuesto un RString
 getSymbols :: RString -> [RString]
 getSymbols str
     | length' symbol == 0 = []
@@ -208,7 +217,9 @@ readRStringSystem :: [(String, String)] -> (RewriteSystem)RString
 readRStringSystem [] = RewriteSystem []
 readRStringSystem l = RewriteSystem $ readListRuleRString l
 
+-- transforma una dupla de Strings en una regla de Rstrings
 readRuleRString :: (String, String) -> (Rule)RString
+readRuleRString ("",_) = EmptyRule
 readRuleRString (a, b) = Rule (readRString a) (readRString b)
 
 readListRuleRString :: [(String, String)] -> [Rule RString]
@@ -221,7 +232,6 @@ instance Show (RString) where
     show(RString a) = init(tail(show a))
 
 {- 4.4 -}
--- [(Position, a)]
 leftmost :: Strategy (RString)
 leftmost [] = []
 leftmost l = [head $ sort l]
@@ -240,62 +250,6 @@ rightmost l = [last $ sort l]
 
 {- Juegos de pruebas --------------------------------------------------------}
 
-mySignature :: Signature
-mySignature = [([a],0)|a<-['a'..'z']]
-
-myRule = readRuleRString ("marc","gay")
-
-test :: String -> Bool
-test str = str == "a"
-
 myStringSystem = readRStringSystem [("wb", "bw"), ("rb", "br"), ("rw", "wr")]
 myStringSignature = [("b",0),("w",0),("r",0)]
 myRString = readRString "wrrbbwrrwwbbwrbrbww"
---valid myStringSignature myRString
-
-myStrings = readRStringSystem [("a","z"), ("b","y"), ("c","x")]
-myString = readRString "a1b2a13"
-myString2 = readRString "abc1b2a13"
-
---sign1 :: Signature
---sign1 = [("a",0),("b",0),("1",0),("2",0)]
---sign2 :: Signature
---sign2 = [("a1",0),("b2",0)]
---string1 = readRString "a1b2"
-
---show $ valid sign1 string1
---show $ valid sign2 string1
-
-
-----let myRString = readRString "wrrbbwrrwwbbwrbrbww"
---myAbc = (map (\x -> readRString[x]) ['a'..'z'])
---myNums = (map (\x->readRString$show x) [0..9])
-----myCleanfromString = takeWhile (\x -> isChar [x]) "abc234"
---myCleanRString = takeWhile (\x -> isChar [x]) (show myString2)
---myCleanRString2 = takeWhile (\x -> isChar [x]) "abc1b2a13"
---myWtf = readRString myCleanRString2
-
---applyOnPos (readRString "e1") 0 (readRString "re")
-
-macia = readRString "Macia es un capullo!!"
-luis = readRString "Luis es muy feo kuekuek"
-aina = readRString "Aina es una patosa"
-
-cambio = Substitution [
-    (readRString "capullo",readRString "gay"),
-    (readRString "feo", readRString "guapo"),
-    (readRString "patosa",readRString "patosa que te cagas")]
-
-
-
-str1 = RString "ababa"
-str2 = RString "lpshit"
-pos1 :: Position
-pos1 = [2]
-pos2 :: Position
-pos2 = [2,2]
-pos3 :: Position
-pos3 = [2,4]
-lista1 = [(pos1, str2)]
-lista2 = [(pos2, str2)]
-lista3 = [(pos3, str2)]
