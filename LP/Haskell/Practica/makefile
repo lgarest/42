@@ -1,6 +1,6 @@
-all: tests practica
-tests:
+all: test ipractica
+test:
 	runhaskell Tests.hs
 
-practica:
+ipractica: test
 	ghci Practica.hs

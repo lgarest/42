@@ -169,12 +169,6 @@ matchC str a n
     where rec = matchC str (drop' (length' str) a) (n+(length' str))
 
 -- aplica el cambio del snd donde haga matching el fst en el primer parámetro
---applyChange :: RString -> (RString,RString) -> RString
---applyChange s (a,b) = foldl(\x y ->
---    applyOnPos x (head $ fst y) m b) s (match a s)
---    where m = length' a
-
--- | length' s == 0 = s
 applyChange :: RString -> (RString,RString) -> RString
 applyChange s (a,b)
     | length (match a s) == 0 = s
@@ -238,18 +232,79 @@ leftmost l = [head $ sort l]
 rightmost :: Strategy (RString)
 rightmost [] = []
 rightmost l = [last $ sort l]
+
+{- 5. RTerm -----------------------------------------------------------------}
+
+{- 5.1 -}
+data RTerm a= EmptyTree | Node (TString, Int) [RTerm a] deriving(Eq)
+
+data TString = TString String deriving (Eq)
+
+instance Rewrite (RTerm a) where
+    -- a -> [a]
+    getVars t = []
+    -- Signature -> a -> Bool
+    valid sign t = False
+    -- a -> a -> [(Position, Substitution a)]
+    match t1 t2 = []
+    -- a -> Substitution a -> a
+    apply t (Substitution s) = t
+    -- a -> [(Position, a)] -> a
+    replace t lista = t
+    -- a -> a
+    evaluate t = t
+
+{- 5.2 show RTerm -}
+instance Show (TString) where
+    show(TString a) = init(tail(show a))
+
+instance Show (RTerm a) where
+    show EmptyTree = ""
+    show (Node (s,n) []) = (show s)
+    show (Node (s,n) (child:children))
+        | n <= 0 = (show s)
+        | n == 1 = (show s)++"("++(show child)++")"
+        | otherwise = (show s)++"("++(show child)++", "
+            ++(showChildren children)++")"
+
+showChildren :: [RTerm t] -> [Char]
+showChildren [] = ""
+showChildren [x] = show x
+showChildren ((Node (s,n) children):xs)
+    | xs == [] = (show s)++"("++(showChildren children)++")"
+    | children /= [] = (show s)++"("++(showChildren children)++")"
+        ++", "++(showChildren xs)
+    | otherwise = (show s) ++ ", " ++ (showChildren xs)
+
+{- 5.3 readRTree & readRTermSystem -}
+readTString :: String -> TString
+readTString str = TString str
+
+readRTree :: [(String, Int)] -> RTerm a
+readRTree [] = EmptyTree
+readRTree ((s,n):xs)
+    | n <= 0 = Node (readTString s,n) []
+    | otherwise = Node (readTString s,n) (rFills xs)
+
+rFills :: [([Char], Int)] -> [RTerm a]
+rFills [] = []
+rFills (t@(x,n):xs)
+    | xs == [] = leaf
+    | n <= 0 = leaf ++ rec
+    | n == 1 = previous1 ++ next1
+    | otherwise = previous2 ++ next2
+    where
+          leaf = [Node (readTString x,n) []]
+          rec = rFills xs
+          previous1 = [Node (readTString x,n) rec]
+          previous2 = [Node (readTString x,n) rec]
+          next1 = rFills $ drop (length previous1) xs
+          next2 = rFills $ drop (length previous2) xs
+
+
+{- 5.4 estrategias
+parallelinnermost, leftmostinnermost, paralleloutermost, leftmostoutermost-}
 --parallelinnermost _ = []
 --leftmostinnermost _ = []
 --paralleloutermost _ = []
 --leftmostoutermost _ = []
-
-{- 5. RTerm -----------------------------------------------------------------}
-
-
-
-
-{- Juegos de pruebas --------------------------------------------------------}
-
-myStringSystem = readRStringSystem [("wb", "bw"), ("rb", "br"), ("rw", "wr")]
-myStringSignature = [("b",0),("w",0),("r",0)]
-myRString = readRString "wrrbbwrrwwbbwrbrbww"

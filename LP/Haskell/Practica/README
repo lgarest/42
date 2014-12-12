@@ -1,0 +1,3 @@
+make test para ejecutar los tests, hay uno que falla en lectura de árboles
+
+make para ejecutar los tests y entrar en el intérprete

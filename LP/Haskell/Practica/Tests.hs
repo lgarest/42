@@ -1,13 +1,17 @@
 module Tests where
 import Practica
 
+assertEq b c = if b == c then putStr "." else putStr "F"
+assertNEq b c = if b /= c then putStr "." else putStr "F"
+assertTr b = if b then putStr "."else putStr "F"
+assertFa b = if not b then putStr "."else putStr "F"
+
 testRStringGetVars = do
     putStr "\nRString -> GetVars: "
     let myRString = readRString "wrrbbwrrwwbbwrbrbww"
     let gotten = getVars myRString
     let expected = []
-    if gotten == expected then putStr "."
-    else putStr "F"
+    assertEq gotten expected
 
 testRStringValid = do
     putStr "\nRString -> Valid: "
@@ -15,19 +19,16 @@ testRStringValid = do
     let myStringSignature = [("b",0),("w",0),("r",0)]
     let myRString = readRString "wrrbbwrrwwbbwrbrbww"
     let gotten = valid myStringSignature myRString
-    if gotten then putStr "."
-    else putStr "F"
+    assertTr gotten
 
     let myStringSignature1 = [("a",0),("b",0),("c",0),("1",0),("2",0),("3",0)]
     let myRString2 = readRString "a1b2c13"
     let gotten2 = valid myStringSignature1 myRString2
-    if not gotten2 then putStr "."
-    else putStr "F"
+    assertFa gotten2
 
     let myStringSignature2 = [("a1",0),("b2",0),("c13",0)]
     let gotten3 = valid myStringSignature2 myRString2
-    if gotten3 then putStr "."
-    else putStr "F"
+    assertTr gotten3
 
 testRStringMatch = do
     putStr "\nRString -> Match: "
@@ -36,9 +37,7 @@ testRStringMatch = do
 
     let gotten = length $ match myRString mytargetRString
     let expected = 3
-
-    if gotten == expected then putStr "."
-    else putStr "F"
+    assertEq gotten expected
 
 testRStringApply = do
     putStr "\nRString -> Apply: "
@@ -48,9 +47,7 @@ testRStringApply = do
 
     let gotten = apply myRString (Substitution[(a,b)])
     let expected = readRString "dfdfdf"
-
-    if gotten == expected then putStr "."
-    else putStr "F"
+    assertEq gotten expected
 
     let myRString2 = readRString "abb"
     let c = readRString "ab"
@@ -58,9 +55,7 @@ testRStringApply = do
 
     let gotten2 = apply myRString2 (Substitution[(c,d)])
     let expected2 = readRString "ab"
-
-    if gotten2 == expected2 then putStr "."
-    else putStr "F"
+    assertEq gotten2 expected2
 
 testRStringReplace = do
     putStr "\nRString -> Replace: "
@@ -69,25 +64,17 @@ testRStringReplace = do
 
     let gotten = replace myRString [([2,2], replacement)]
     let expected = readRString "edreeferg"
-
-    if gotten == expected then putStr "."
-    else putStr "F"
+    assertEq gotten expected
 
     let gotten2 = replace myRString [([2,4], replacement)]
     let expected2 = readRString "edreerg"
-
-    if gotten2 == expected2 then putStr "."
-    else putStr "F"
+    assertEq gotten2 expected2
 
 testRStringEvaluate = do
     putStr "\nRString -> Evaluate: "
     let myRString = readRString "wrrbbwrrwwbbwrbrbww"
-
     let gotten = evaluate myRString
-
-    if gotten == myRString then putStr "."
-    else putStr "F"
-
+    assertEq gotten myRString
 
 testRStringRewrite = do
     putStr "\nRString -> rewrite: "
@@ -97,29 +84,22 @@ testRStringRewrite = do
 
     let gottenStr1 = rewrite myStringSystem myRString leftmost
     let expected1 = readRString "bbbbbbwwwwwwwrrrrrr"
-
-    if gottenStr1 == expected1 then putStr "."
-    else putStr "F"
+    assertEq gottenStr1 expected1
 
     let gottenStr2 = rewrite myStringSystem myRString rightmost
-    if gottenStr2 == expected1 then putStr "."
-    else putStr "F"
+    assertEq gottenStr2 expected1
 
 testSymbols = do
     putStr "\nRString -> getSymbols: "
     let origStr1 = readRString "a1b2c13dez240"
     let expected1 = map(\x -> readRString x) ["a1","b2","c13","d","e","z240"]
     let gotten1 = getSymbols origStr1
-
-    if gotten1 == expected1 then putStr "."
-    else putStr "F"
+    assertEq gotten1 expected1
 
     let origStr2 = readRString "abecedario"
     let expected2 = map(\x -> readRString x) ["a","b","e","c","e","d","a","r","i","o"]
     let gotten2 = getSymbols origStr2
-
-    if gotten2 == expected2 then putStr "."
-    else putStr "F"
+    assertEq gotten2 expected2
 
 testRStringOneStepRewrite = do
     putStr "\nRString -> oneStepRewrite: "
@@ -129,14 +109,11 @@ testRStringOneStepRewrite = do
 
     let gottenStr1 = oneStepRewrite myStringSystem myRString leftmost
     let expected1 = readRString "wrbrbwrrwwbbwrbrbww"
-
-    if gottenStr1 == expected1 then putStr "."
-    else putStr "F"
+    assertEq gottenStr1 expected1
 
     let expected2 = readRString "wrrbbwrrwwbbwrbbrww"
     let gottenStr2 = oneStepRewrite myStringSystem myRString rightmost
-    if gottenStr2 == expected2 then putStr "."
-    else putStr "F"
+    assertEq gottenStr2 expected2
 
 testRStringnrewrite = do
     putStr "\nRString -> nrewrite: "
@@ -146,42 +123,34 @@ testRStringnrewrite = do
 
     let gottenStr1 = nrewrite myStringSystem myRString leftmost 1
     let expected1 = readRString "wrbrbwrrwwbbwrbrbww"
-
-    if gottenStr1 == expected1 then putStr "."
-    else putStr "F"
+    assertEq gottenStr1 expected1
 
     let expected2 = readRString "wrrbbwrrwwbbwrbbrww"
     let gottenStr2 = nrewrite myStringSystem myRString rightmost 1
-    if gottenStr2 == expected2 then putStr "."
-    else putStr "F"
+    assertEq gottenStr2 expected2
 
     let gottenStr3 = nrewrite myStringSystem myRString leftmost 68
     let expected3 = readRString "bbbbbbwwwwwwrwrrrrr"
-    if gottenStr3 == expected3 then putStr "."
-    else putStr "F"
+    assertEq gottenStr3 expected3
 
     let expected4 = readRString "bbbbbwbwwwwwwrrrrrr"
     let gottenStr4 = nrewrite myStringSystem myRString rightmost 68
-    if gottenStr4 == expected4 then putStr "."
-    else putStr "F"
+    assertEq gottenStr4 expected4
 
 testRStringValidRule = do
     putStr "\nRString -> validRule: "
     let myRule1 = readRuleRString ("wb", "bw")
     let myStringSignature = [("b",0),("w",0),("r",0)]
     let gotten = validRule myStringSignature myRule1
-    if gotten == True then putStr "."
-    else putStr "F"
+    assertTr gotten
 
     let myInvalidRule1 = readRuleRString ("a", "z")
     let gotten2 = validRule myStringSignature myInvalidRule1
-    if gotten2 == False then putStr "."
-    else putStr "F"
+    assertFa gotten2
 
     let myInvalidRule2 = readRuleRString ("", "")
     let gotten3 = validRule myStringSignature myInvalidRule2
-    if gotten3 == False then putStr "."
-    else putStr "F"
+    assertFa gotten3
 
 testRStringValidRWS = do
     putStr "\nRString -> validRWS: "
@@ -189,9 +158,7 @@ testRStringValidRWS = do
     let myStringSignature = [("b",0),("w",0),("r",0)]
     let myRString = readRString "wrrbbwrrwwbbwrbrbww"
     let gotten = validRewriteSystem myStringSignature myStringSystem
-
-    if gotten == True then putStr "."
-    else putStr "F"
+    assertTr gotten
 
 testRStringValidRString = do
     putStr "\nRString -> validRString: "
@@ -199,21 +166,46 @@ testRStringValidRString = do
     let myStringSignature = [("b",0),("w",0),("r",0)]
     let myRString = readRString "wrrbbwrrwwbbwrbrbww"
     let gotten = valid myStringSignature myRString
-    if gotten == True then putStr "."
-    else putStr "F"
+    assertTr gotten
 
     let myRString2 = readRString "b1w2r3"
     let myInvalidStringSignature1 = [("b",0),("w",0),("r",0),("1",0),("2",0),("3",0)]
     let gotten2 = valid myInvalidStringSignature1 myRString2
-    if gotten2 == False then putStr "."
-    else putStr "F"
+    assertFa gotten2
 
     let myRString3 = readRString "b1w2r3"
     let myStringSignature2 = [("b1",0),("w2",0),("r3",0)]
     let gotten3 = valid myStringSignature2 myRString3
-    if gotten3 == True then putStr "."
-    else putStr "F"
+    assertTr gotten3
 
+testRTermreadRTree = do
+    putStr "\nRTerm -> readRTree: "
+    let st = readRTree [("a",3),("b",1),("c",1),("d",0),("e",1),("f",1),("g",0),("h",1),("i",1),("j",0)]
+    let d = Node(readTString "d", 0) []
+    let g = Node(readTString "g", 0) []
+    let j = Node(readTString "j", 0) []
+    let c = Node(readTString "c", 0) [d]
+    let f = Node(readTString "f", 0) [g]
+    let i = Node(readTString "i", 0) [j]
+    let b = Node(readTString "b", 0) [c]
+    let e = Node(readTString "e", 0) [f]
+    let h = Node(readTString "h", 0) [i]
+    let expected = Node(readTString "a", 3) [b,e,h]
+    assertEq st expected
+
+    let st2 = readRTree [("a",1),("b",1),("c",1),("d",0)]
+    let d1 = Node(readTString "d", 0) []
+    let c1 = Node(readTString "c", 1) [d1]
+    let b1 = Node(readTString "b", 1) [c1]
+    let expected2 = Node(readTString "a", 1) [b1]
+    assertEq st2 expected2
+
+    let st3 = readRTree [("a",3),("b",0),("c",0),("d",0)]
+    let d2 = Node(readTString "d", 0) []
+    let c2 = Node(readTString "c", 0) []
+    let b2 = Node(readTString "b", 0) []
+    let expected3 = Node(readTString "a", 3) [b2,c2,d2]
+    assertEq st3 expected3
 
 runtests = do
     putStr "--------------------------------------------------------------\n"
@@ -233,6 +225,7 @@ runtests = do
     testRStringValidRule
     testRStringValidRWS
     testRStringValidRString
+    testRTermreadRTree
     putStr "\n--------------------------------------------------------------\n"
 
 main = runtests
