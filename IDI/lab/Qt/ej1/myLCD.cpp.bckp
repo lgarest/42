@@ -1,0 +1,28 @@
+#include "myLCD.h"
+
+myLCD::myLCD(QWidget *parent):QLCDNumber(parent){}
+
+void myLCD::setZero(){
+    setStyleSheet("color:red");
+    display(0);
+}
+
+
+
+void myLCD::setNum(int n){
+    if (intValue() == 0) {
+        setSegmentStyle(Flat);
+        setStyleSheet("color:green");
+        display(n);
+    }
+    else if (intValue() % 2 == 0) {
+        setSegmentStyle(Flat);
+        setStyleSheet("color:blue");
+        display(n);
+    }
+    else if (intValue() % 2 != 0) {
+        setSegmentStyle(Flat);
+        setStyleSheet("color:red");
+        display(n);
+    }
+}
