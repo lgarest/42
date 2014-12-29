@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # from HTMLParser import HTMLParser
-# import csv
+from collections import OrderedDict
+import csv
 import math
 import re
 import urllib2
@@ -52,7 +53,36 @@ def to_radians(a):
     return float(a) * (math.pi / 180.0)
 
 
+def in_radius(radius, a_lat, a_lon, b_lat, b_lon):
+    """ Devuelve si b está dentro del radio de a y la distancia a la que está """
+    within_radius = False
+    EARTH_RADIUS = 6372.795477598
+    a_lat, a_lon = to_radians(a_lat), to_radians(a_lon)
+    b_lat, b_lon = to_radians(b_lat), to_radians(b_lon)
+    distance = EARTH_RADIUS * math.acos(math.sin(a_lat) * math.sin(b_lat) + math.cos(a_lat) * math.cos(b_lat) * math.cos(a_lon - b_lon))
+    if distance <= radius:
+        within_radius = True
+        distance = int(distance * 1000)
+    return within_radius, distance
+
+
+def get_bus_transports(bus_list=[], transports_list=[]):
+    csv.register_dialect("custom_dialect", CustomDialect)
+    if len(bus_list) == 0:
+        print "Necesita buses, inicializar"
+        bus_list = csv.DictReader(
+            open("ESTACIONS_BUS.csv"), dialect="custom_dialect")
+    if len(transports_list) == 0:
+        print "Necesita transp publico, inicializar"
+        transports_list = csv.DictReader(
+            open("TRANSPORTS.csv"), dialect="custom_dialect")
+    return bus_list, transports_list
+
+#-----------------------------------------------------------------------------#
+
 #-------------------------------- Clases -------------------------------------#
+
+
 class Event(object):
     """ Representa un evento """
 
@@ -157,6 +187,96 @@ class Event(object):
                 return False
         return True
 
+    def get_stations(self, radius, buses, trans):
+        """ Atribuye las ĺineas de bus y metro al evento """
+
+        def get_ids(station_name):
+            """ Descompone un nombre de estación en las líneas que contiene """
+            # obtención de las líneas de metro
+            regexp_metro = "\s*METRO\s*(.*)"
+            metro_match = re.findall(regexp_metro, station_name)
+            if len(metro_match) != 0:
+                regexp_metro = "(L\d+)"
+                return re.findall(regexp_metro, metro_match[0])
+
+            # obtención de las líneas de bus (nit, aero, normal)
+            regexp_bus = "\s*[AERONIT]?BUS\s*(.*)"
+            bus_match = re.findall(regexp_bus, station_name)
+            if len(bus_match) != 0:
+                regexp_bus = "-(\w?\d+)"
+                return re.findall(regexp_bus, bus_match[0])
+
+            # obtención de las líneas y estaciones de FGC
+            regexp_fgc = "\s*FGC\s*(.*)"
+            fgc_match = re.findall(regexp_fgc, station_name)
+            if len(fgc_match) != 0:
+                regexp_fgc = "(L\d+)"
+                fgc_match2 = re.findall(regexp_fgc, fgc_match[0])
+                if len(fgc_match2) == 0:
+                    return [station_name]
+                return fgc_match2
+
+            # obtención de las líneas y estaciones de tranvía
+            regexp_tram = "\s*TRAMVIA\s*(.*)"
+            tram_match = re.findall(regexp_tram, station_name)
+            if len(tram_match) != 0:
+                regexp_tram = "(T\d+)"
+                tram_match2 = re.findall(regexp_tram, tram_match[0])
+                if len(tram_match2) == 0:
+                    return [station_name]
+                return tram_match2
+            return [station_name]
+
+        # diccionario que contendrá las líneas de bus, metro, tren, etc
+         # a menos de 1km
+        # sus claves son el número de línea o nombre de estación
+        # sus valores son la info del bus extraída del csv (también distancia)
+        self.public_trans = {}
+        for bus in buses:
+            # por cada bus, comprobación de si está dentro del radio
+            # y obtención de su distancia
+            within, distance = in_radius(
+                1.0, self.lat, self.lon,
+                bus["LATITUD"], bus["LONGITUD"])
+
+            # por cada línea/estación obtenida
+            for ide in get_ids(bus["EQUIPAMENT"]):
+                # si está dentro del radio y no está en el diccionario de
+                # buses, se añade su distancia y se añade al diccionario
+                if within and ide not in self.public_trans.keys():
+                    bus["distance"] = distance
+                    self.public_trans[ide] = bus
+                # si ya está en el diccionario, nos quedamos la que esté
+                # a menor distancia
+                elif within:
+                    if self.public_trans[ide]["distance"] > distance:
+                        bus["distance"] = distance
+                        self.public_trans[ide] = bus
+
+        for stop in trans:
+            # por cada parada, comprobación de si está dentro del radio
+            # y obtención de su distancia
+            within, distance = in_radius(
+                1.0, self.lat, self.lon,
+                stop["LATITUD"], stop["LONGITUD"])
+
+            # por cada línea/estación obtenida
+            for ide in get_ids(stop["EQUIPAMENT"]):
+                # si está dentro del radio y no está en el diccionario de
+                # paradas, se añade su distancia y se añade al diccionario
+                if within and ide not in self.public_trans.keys():
+                    stop["distance"] = distance
+                    self.public_trans[ide] = stop
+                # si ya está en el diccionario, nos quedamos la que esté
+                # a menor distancia
+                elif within:
+                    if self.public_trans[ide]["distance"] > distance:
+                        stop["distance"] = distance
+                        self.public_trans[ide] = stop
+        # ordenamos el diccionario de metros, tren, tranvia por proximidad
+        self.public_trans = OrderedDict(
+            sorted(self.public_trans.items(), key=lambda t: t[1]["distance"]))
+
 
 class Prediction(object):
     """ Representa una predicción metereológica de una comarca """
@@ -177,14 +297,18 @@ class Prediction(object):
 
         self.pred_morning_today = prediction_region[0].get('probcalamati')
         self.pred_aftern_today = prediction_region[0].get('probcalatarda')
-        if self.pred_morning_today != "1" or self.pred_aftern_today != "1":
+        self.simb_morning_today = int(prediction_region[0].get('simbolmati')[0])
+        self.simb_aftern_today = int(prediction_region[0].get('simboltarda')[0])
+        if self.pred_morning_today != "1" or self.pred_aftern_today != "1" or self.simb_morning_today > 4 or self.simb_aftern_today > 4:
             self.rain_today = True
         self.min_temp_today = int(prediction_region[0].get('tempmin'))
         self.max_temp_today = int(prediction_region[0].get('tempmax'))
 
         self.pred_morning_tomorrow = prediction_region[1].get('probcalamati')
         self.pred_aftern_tomorrow = prediction_region[1].get('probcalatarda')
-        if self.pred_morning_tomorrow != "1" or self.pred_aftern_tomorrow != "1":
+        self.simb_morning_tomorrow = int(prediction_region[1].get('simbolmati')[0])
+        self.simb_aftern_tomorrow = int(prediction_region[1].get('simboltarda')[0])
+        if self.pred_morning_tomorrow != "1" or self.pred_aftern_tomorrow != "1" or self.simb_morning_tomorrow > 4 or self.simb_aftern_tomorrow > 4:
             self.rain_tomorrow = True
         self.min_temp_tomorrow = int(prediction_region[1].get('tempmin'))
         self.max_temp_tomorrow = int(prediction_region[1].get('tempmax'))
@@ -224,34 +348,13 @@ class BicingStations(dict):
 
     def __from_xml__(self, xml):
         """ Añade toda las estaciones de bicing contenidas en el xml """
-        for station in xml.findall('station'):
+        for station_xml in xml.findall('station'):
             station = BicingStation()
             for k, funct in station.setters.items():
-                station.__setattr__(k, funct(station.find(k).text))
+                station.__setattr__(k, funct(station_xml.find(k).text))
 
-            station.nearbyStationList = station.findtext('nearbyStationList')
+            station.nearbyStationList = station_xml.findtext('nearbyStationList')
             self[station.id] = station
-
-    def available(self):
-        """ Estaciones con status == OPN """
-        return [v for s, v in filter(
-            lambda v: v[1].status == "OPN", self.items())]
-
-    def empty(self):
-        """ Estaciones vacías """
-        return [v for s, v in filter(lambda v: v[1].bikes == 0, self.items())]
-
-    def full(self):
-        """ Estaciones llenas """
-        return [v for s, v in filter(
-            lambda v: v[1].slots == 0, self.items())]
-
-    def few_bikes(self, stations=None):
-        """ Estaciones con menos de 5 bicis """
-        if not stations:
-            stations = self.items()
-        return [v for s, v in filter(lambda v: v[1].bikes <= 5 and
-                v[1].bikes > 0, stations)]
 
     def with_bikes(self, stations=None):
         """ Estaciones que contienen alguna bici """
@@ -265,40 +368,37 @@ class BicingStations(dict):
             stations = self.items()
         return [v for s, v in filter(lambda v: v[1].slots > 0, stations)]
 
-    def few_slots(self, stations=None):
-        """ Estaciones con menos de 5 slots """
-        if not stations:
-            stations = self.items()
-        return [v for s, v in filter(
-            lambda v: v[1].slots <= 5 and v[1].slots > 0, stations)]
-
-    def get_nearby(self, id=None):
-        """ Estaciones cercanas a la estacion con id 'id' """
-        if not id:
-            return []
-        return self[id].nearbyStationList
-
     def get_stations_within_radius(self, radius, lat, lon, stations=None):
-        """ Devuelve las estaciones que están a menos del radio del punto dado por latitud y longitud """
+        """ Devuelve las estaciones que están a menos del radio (kilómetros) del punto dado por lat y lon """
         if not stations:
             stations = self.items()
-        EARTH_RADIUS = 6372.795477598
-        lat, lon = to_radians(lat), to_radians(lon)
         ret = []
         for s, v in stations:
             v_lat, v_long = v.lat, v.long
-            v_lat, v_long = to_radians(v_lat), to_radians(v_long)
-            distance = EARTH_RADIUS * math.acos(math.sin(lat) * math.sin(v_lat) + math.cos(lat) * math.cos(v_lat) * math.cos(lon - v_long))
-            if distance <= radius:
-                v.distance = int(distance * 1000)
+            within, distance = in_radius(radius, lat, lon, v_lat, v_long)
+            if within:
+                v.distance = distance
                 ret.append((s, v))
         return ret
 
+
+class CustomDialect(csv.Dialect):
+    """ Nuevo dialecto del csv para admitir punto y coma ';' como separadores """
+    lineterminator = '\n'
+    escapechar = '\\'
+    skipinitialspace = False
+    quotechar = '"'
+    quoting = csv.QUOTE_ALL
+    delimiter = ';'
+    doublequote = True
+
+#-----------------------------------------------------------------------------#
+
 #-------------------------- Gestión del input --------------------------------#
 # "nom:exposicio , barri:Poblenou"
-user_input = raw_input("Escribe tu peticion:\n")
+# user_input = raw_input("Escribe tu peticion:\n")
 # user_input = "nom:ra , nom:posic , barri:Poblenou"
-# user_input = "nom: museu"
+user_input = "nom: horror"
 user_input = user_input.decode("utf-8")
 user_input = clean_str(user_input)
 
@@ -350,14 +450,15 @@ for acte_xml in events_xml.findall('.//acte'):
 # eventos que cumplen todas las condiciones de las 3 listas
 matched_events = [e_obj for e_obj in filter(
     lambda e: e.matches(names, places, neighborhoods), events.values())]
+# si no hay resultados salimos
 if len(matched_events) == 0:
     print "No results have been found for the request:"
     print user_input
+    exit(1)
 else:
     print "Found %d mathing events" % len(matched_events)
-    if len(matched_events) < 20:
-        for e in matched_events:
-            print e
+    for e in matched_events[:20]:
+        print e
 
 #-----------------------------------------------------------------------------#
 
@@ -366,13 +467,48 @@ else:
 # extraer la información del clima
 weather_xml = xml_from_url(weather_url)
 prediction_bcn = Prediction("Barcelona", weather_xml)
-print "prediction_bcn: %s" % (prediction_bcn)
+print "prediction: %s" % (prediction_bcn)
+transports = []
+bus_stations = []
 if not prediction_bcn.rain_today:
     # paradas bicing
     bicing_xml = xml_from_url(bicing_url)
+    bicing_stations = BicingStations(bicing_xml)
+    for event in matched_events:
+        # estaciones de bicing a menos de 0.5 km
+        nearby_stations = bicing_stations.get_stations_within_radius(
+            radius=0.5,
+            lat=float(event.lat),
+            lon=float(event.lon))
+
+        # estaciones de bicing a menos de 0.5km con espacios
+        event.stations_with_slots = bicing_stations.with_slots(
+            stations=nearby_stations)
+        # las ordenamos por proximidad y nos quedamos con las 5 primeras
+        event.stations_with_slots = sorted(event.stations_with_slots, key=lambda x: x.distance)[:5]
+        # si no hay ninguna estacion, obtenemos transporte publico
+        # if len(event.stations_with_slots) == 0:
+        if len(event.stations_with_slots) != 0:
+            bus_stations, transports = get_bus_transports(bus_stations, transports)
+            event.get_stations(radius=1.0, buses=bus_stations, trans=transports)
+
+        # estaciones de bicing a menos de 0.5km con bicis
+        event.stations_with_bikes = bicing_stations.with_bikes(
+            stations=nearby_stations)
+        # las ordenamos por proximidad y nos quedamos con las 5 primeras
+        event.stations_with_bikes = sorted(event.stations_with_bikes, key=lambda x: x.distance)[:5]
+        # si no hay ninguna estacion, obtenemos transporte publico
+        if len(event.stations_with_bikes) == 0:
+            bus_stations, transports = get_bus_transports(bus_stations, transports)
+            event.get_stations(radius=1.0, buses=bus_stations, trans=transports)
+
+        # for k, v in event.public_trans.items():
+        #     print "%s metros, %s" % (v["distance"], k)
+
 else:
-    pass
     # trans publico
+    bus_stations, transports = get_bus_transports(bus_stations, transports)
+    event.get_stations(radius=1.0, buses=bus_stations, trans=transports)
 
 #-----------------------------------------------------------------------------#
 
