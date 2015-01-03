@@ -1,14 +1,15 @@
 <!-- Evento -->
-<table style="border: 1px solid #BBB">
+<table>
 <tr> <td> <strong>{{nom}}</strong> </td>
-    <td> Proper acte: {{data_proper_acte}} - {{hora_fi}} </td>
-    <td> Localització: {{nom_lloc}} </td> </tr>
-<tr> <td> Adreça: {{carrer}} {{numero}}</td>
+    <td> <i>Proper acte:</i> {{data_proper_acte}} - {{hora_fi}} </td>
+    <td> <i>Localització:</i> {{nom_lloc}} </td> </tr>
+<tr> <td> <i>Adreça:</i> {{carrer}} {{numero}}</td>
     <td> {{barri}} {{districte}} </td>
-    <td> CP:{{codi_postal}}, {{municipi}} </td> </tr>
-<tr> <td> {{telefons}} fax:{{fax}} </td>
-    <td> Tags: {{classificacions}} </td>
-    <td> <span style="cursor:pointer; color:blue;"
+    <td> <i>CP:</i> {{codi_postal}}, {{municipi}} </td> </tr>
+<tr> <td> {{telefons}} fax: {{fax}} </td>
+    <td> <i>classificacions:</i> {{classificacions}} </td>
+    <td> <center>
+        <span style="cursor:pointer; color:blue;"
  title="
  latitude: {{lat}}
  longitude: {{lon}}
@@ -16,22 +17,22 @@
  rellevant: {{rellevant}}
  estat: {{estat}}
  estat_cicle: {{estat_cicle}}
- "> extra info</span> </td> </tr>
+ "> extra info</span> </center></td> </tr>
 
 <!-- Estaciones bicing -->
 <tr style="vertical-align:top;">
-    <td> Estaciones Bicing con <strong>slots</strong>
+    <td> <center> Estaciones Bicing con <strong>slots</strong> </center>
         <ul>
             {{stations_with_slots_list}}
         </ul>
     </td>
 
-    <td> Estaciones Bicing con <strong>bicis</strong>
+    <td> <center> Estaciones Bicing con <strong>bicis</strong> </center>
         <ul>
             {{stations_with_bikes_list}}
         </ul>
     </td>
-    <td> Cómo ir en transporte público
+    <td> <center> Cómo ir en <strong>transporte público</strong> </center>
         <ul style="overflow-y:scroll;">
             {{public_trans_list}}
         </ul>

@@ -18,10 +18,13 @@ bicing_url = "http://wservice.viabicing.cat/v1/getstations.php?v=1"
 
 #------------------------- Funciones auxiliares ------------------------------#
 
-def xml_from_url(url):
+def xml_from_url(url, local=False):
     """ Devuelve un xml a partir de una url """
-    request = urllib2.Request(url)
-    response = urllib2.urlopen(request)
+    if not local:
+        request = urllib2.Request(url)
+        response = urllib2.urlopen(request)
+    else:
+        response = open(url)
     xml = response.read()
     response.close()
     return ET.fromstring(xml)
@@ -41,30 +44,19 @@ def in_radius(radius, a_lat, a_lon, b_lat, b_lon):
     if distance <= radius:
         within_radius = True
         distance = int(distance * 1000)
-        print "distance: %s" % (distance)
-        print "radius: %s" % (radius)
     return within_radius, distance
 
 
 def get_bus_transports(bus_list=[], transports_list=[]):
     """ Devuelve dos diccionarios:
         uno con las paradas de bus
-        y otro con las de transporte público
-        si no han sido inicializados """
+        y otro con las de transporte público """
 
     csv.register_dialect("custom_dialect", CustomDialect)
-    if isinstance(bus_list, list) and len(bus_list) == 0:
-        bus_list = csv.DictReader(
-            open("ESTACIONS_BUS.csv"), dialect="custom_dialect")
-    if isinstance(transports_list, list) and len(transports_list) == 0:
-        transports_list = csv.DictReader(
-            open("TRANSPORTS.csv"), dialect="custom_dialect")
-    # if isinstance(bus_list, list) and len(bus_list) == 0:
-    #     bus_list = csv.DictReader(
-    #         codecs.open("ESTACIONS_BUS.csv", 'r', 'utf-8'), dialect="custom_dialect")
-    # if isinstance(transports_list, list) and len(transports_list) == 0:
-    #     transports_list = csv.DictReader(
-    #         codecs.open("TRANSPORTS.csv", 'r', 'utf-8'), dialect="custom_dialect")
+    bus_list = csv.DictReader(
+        open("ESTACIONS_BUS.csv"), dialect="custom_dialect")
+    transports_list = csv.DictReader(
+        open("TRANSPORTS.csv"), dialect="custom_dialect")
     return bus_list, transports_list
 
 
@@ -225,7 +217,7 @@ class Event(object):
                 return False
         return True
 
-    def get_stations(self, radius, buses, trans):
+    def get_stations(self, radius, buses=[], trans=[]):
         """ Atribuye las ĺineas de bus y metro al evento """
 
         def get_ids(station_name):
@@ -270,8 +262,9 @@ class Event(object):
          # a menos de 1km
         # sus claves son el número de línea o nombre de estación
         # sus valores son la info del bus extraída del csv (también distancia)
-        # self.public_trans = {}
-        for bus in buses:
+        buses_copy, trans_copy = buses, trans
+
+        for bus in buses_copy:
             # por cada bus, comprobación de si está dentro del radio
             # y obtención de su distancia
             within, distance = in_radius(
@@ -292,7 +285,7 @@ class Event(object):
                         bus["distance"] = distance
                         self.public_trans[ide] = bus
 
-        for stop in trans:
+        for stop in trans_copy:
             # por cada parada, comprobación de si está dentro del radio
             # y obtención de su distancia
             within, distance = in_radius(
@@ -316,7 +309,8 @@ class Event(object):
             # ordenamos el diccionario de metros, tren, tranvia por proximidad
             self.public_trans = OrderedDict(
                 sorted(self.public_trans.items(), key=lambda t: t[1]["distance"]))
-            # print [v["distance"] for k, v in self.public_trans.items()]
+
+            print "len public_trans: %s" % len(self.public_trans.keys())
 
 
 class Prediction(object):
@@ -475,7 +469,8 @@ if len(names) == 0 and len(neighborhoods) == 0 and len(places) == 0:
 
 #------------------------ Extracción de los eventos --------------------------#
 # extracción de los eventos
-events_xml = xml_from_url(events_url)
+# events_xml = xml_from_url(events_url)
+events_xml = xml_from_url("events.xml", True)
 
 events = dict()
 # iteración sobre cada nodo xml 'acte'
@@ -528,12 +523,6 @@ if not prediction_bcn.rain_today:
             stations=nearby_stations)
         # las ordenamos por proximidad y nos quedamos con las 5 primeras
         event.stations_with_slots = sorted(event.stations_with_slots, key=lambda x: x.distance)[:5]
-        # si no hay ninguna estacion, obtenemos transporte publico
-        # if len(event.stations_with_slots) == 0:
-        if len(event.stations_with_slots) == 0:
-            print "No hay estaciones con slots libres"
-            bus_stations, transports = get_bus_transports(bus_stations, transports)
-            event.get_stations(radius=1.0, buses=bus_stations, trans=transports)
 
         # estaciones de bicing a menos de 0.5km con bicis
         event.stations_with_bikes = bicing_stations.with_bikes(
@@ -541,9 +530,8 @@ if not prediction_bcn.rain_today:
         # las ordenamos por proximidad y nos quedamos con las 5 primeras
         event.stations_with_bikes = sorted(event.stations_with_bikes, key=lambda x: x.distance)[:5]
 
-        # si no hay ninguna estacion, obtenemos transporte publico
-        if len(event.stations_with_bikes) == 0:
-            print "No hay estaciones con bicis"
+        # si no hay estaciones de bicing, obtenemos transporte publico
+        if len(event.stations_with_bikes) == 0 or len(event.stations_with_slots) == 0:
             bus_stations, transports = get_bus_transports(bus_stations, transports)
             event.get_stations(radius=1.0, buses=bus_stations, trans=transports)
 
@@ -581,27 +569,33 @@ for event in matched_events:
         event_html = html_wr(event_html, key, value)
 
     # inserción de las estaciones con sitio
-    bicing_with_slots_html = u""
+    # guarda el
+    bicing_list_html = u""
     for bicing_station in event.stations_with_slots:
         bicing_html = bicing_raw_html
-        # print bicing_station.__dict__['distance']
         # inserción de los atributos
         for key, value in bicing_station.__dict__.items():
             bicing_html = html_wr(bicing_html, key, value)
-        bicing_with_slots_html = u''.join((bicing_with_slots_html, bicing_html))
-    event_html = html_wr(
-        event_html, "stations_with_slots_list", bicing_with_slots_html)
+        bicing_list_html = u''.join((bicing_list_html, bicing_html))
+    if len(event.stations_with_slots) != 0:
+        event_html = html_wr(
+            event_html, "stations_with_slots_list", bicing_list_html)
+    else:
+        event_html = html_wr(event_html, "stations_with_slots_list", u"No hay estaciones de bicing con sitios a menos de 500m, se mostrará el transporte público disponible a menos de 1km")
 
     # inserción de las estaciones con bicis
-    bicing_with_bikes_html = u""
+    bicing_list_html = u""
     for bicing_station in event.stations_with_bikes:
         bicing_html = bicing_raw_html
         # inserción de los atributos
         for key, value in bicing_station.__dict__.items():
             bicing_html = html_wr(bicing_html, key, value)
-        bicing_with_bikes_html += bicing_html
-    event_html = html_wr(
-        event_html, "stations_with_bikes_list", bicing_with_bikes_html)
+        bicing_list_html = u''.join((bicing_list_html, bicing_html))
+    if len(event.stations_with_bikes) != 0:
+        event_html = html_wr(
+            event_html, "stations_with_bikes_list", bicing_list_html)
+    else:
+        event_html = html_wr(event_html, "stations_with_bikes_list", u"No hay estaciones de bicing con bicis a menos de 500m, se mostrará el transporte público disponible a menos de 1km")
 
     if event.public_trans is not None:
         # inserción de las estaciones públicas
@@ -617,7 +611,7 @@ for event in matched_events:
             event_html, "public_trans_list", public_transport_stations_html)
     else:
         event_html = html_wr(
-            event_html, "public_trans_list", u"No hay transporte público")
+            event_html, "public_trans_list", u"No hay estaciones de transporte")
     if event_html is not None:
         events_html = u''.join((events_html, event_html))
 
