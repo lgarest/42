@@ -83,7 +83,7 @@ def clean_str(string):
     return string.lower()
 
 
-def html_wr(html, string, value):
+def replace_in_html(html, string, value):
     """ Reemplaza en el html, el string que haga matching por el valor value """
 
     # se llama para la lista de estaciones de un evento, así que se devuelve el html
@@ -222,36 +222,35 @@ class Event(object):
 
         def get_ids(station_name):
             """ Descompone un nombre de estación en las líneas que contiene para evitar estaciones o líneas repetidas """
-            # station_name = unicode(station_name, "utf-8", errors='replace')
             # obtención de las líneas de metro
-            regexp_metro = "\s*METRO\s*(.*)"
+            regexp_metro = u"\s*METRO\s*(.*)"
             metro_match = re.findall(regexp_metro, station_name)
             if len(metro_match) != 0:
-                regexp_metro = "(L\d+)"
+                regexp_metro = u"(L\d+)"
                 return re.findall(regexp_metro, metro_match[0])
 
             # obtención de las líneas de bus (nit, aero, normal)
-            regexp_bus = "\s*[AERONIT]?BUS\s*(.*)"
+            regexp_bus = u"\s*[AERONIT]?BUS\s*(.*)"
             bus_match = re.findall(regexp_bus, station_name)
             if len(bus_match) != 0:
-                regexp_bus = "-(\w?\d+)"
+                regexp_bus = u"-(\w?\d+)"
                 return re.findall(regexp_bus, bus_match[0])
 
             # obtención de las líneas y estaciones de FGC
-            regexp_fgc = "\s*FGC\s*(.*)"
+            regexp_fgc = u"\s*FGC\s*(.*)"
             fgc_match = re.findall(regexp_fgc, station_name)
             if len(fgc_match) != 0:
-                regexp_fgc = "(L\d+)"
+                regexp_fgc = u"(L\d+)"
                 fgc_match2 = re.findall(regexp_fgc, fgc_match[0])
                 if len(fgc_match2) == 0:
                     return [station_name]
                 return fgc_match2
 
             # obtención de las líneas y estaciones de tranvía
-            regexp_tram = "\s*TRAMVIA\s*(.*)"
+            regexp_tram = u"\s*TRAMVIA\s*(.*)"
             tram_match = re.findall(regexp_tram, station_name)
             if len(tram_match) != 0:
-                regexp_tram = "(T\d+)"
+                regexp_tram = u"(T\d+)"
                 tram_match2 = re.findall(regexp_tram, tram_match[0])
                 if len(tram_match2) == 0:
                     return [station_name]
@@ -451,10 +450,6 @@ neighborhoods = re.findall(regexp_neighborhood, user_input)
 # contiene las peticiones por "lloc:"
 places = re.findall(regexp_place, user_input)
 
-print names
-# print neighborhoods
-# print places
-
 # si no hay peticion termina el programa mostrando el formato
 if len(names) == 0 and len(neighborhoods) == 0 and len(places) == 0:
     print "Please insert a valid input!\n"
@@ -554,69 +549,72 @@ pred_html = load_template("prediction")
 public_trans_raw_html = load_template("public_station")
 
 # Populación en el template home
-home_raw_html = html_wr(home_raw_html, "input", orig_input)
-home_raw_html = html_wr(home_raw_html, "number_of_events", len(matched_events))
+home_raw_html = replace_in_html(home_raw_html, "input", orig_input)
+home_raw_html = replace_in_html(home_raw_html, "number_of_events", len(matched_events))
 
 for key, value in prediction_bcn.__dict__.items():
-    pred_html = html_wr(pred_html, key, value)
-home_raw_html = html_wr(home_raw_html, "prediction", pred_html)
+    pred_html = replace_in_html(pred_html, key, value)
+home_raw_html = replace_in_html(home_raw_html, "prediction", pred_html)
 
 # print home_raw_html
 events_html = u""
 for event in matched_events:
     event_html = event_raw_html
     for key, value in event.__dict__.items():
-        event_html = html_wr(event_html, key, value)
+        event_html = replace_in_html(event_html, key, value)
 
-    # inserción de las estaciones con sitio
-    # guarda el
-    bicing_list_html = u""
-    for bicing_station in event.stations_with_slots:
-        bicing_html = bicing_raw_html
-        # inserción de los atributos
-        for key, value in bicing_station.__dict__.items():
-            bicing_html = html_wr(bicing_html, key, value)
-        bicing_list_html = u''.join((bicing_list_html, bicing_html))
     if len(event.stations_with_slots) != 0:
-        event_html = html_wr(
+        bicing_list_html = u""
+        # inserción de las estaciones con sitio
+        for bicing_station in event.stations_with_slots:
+            bicing_html = bicing_raw_html
+            # inserción en el html de los atributos
+            for key, value in bicing_station.__dict__.items():
+                bicing_html = replace_in_html(bicing_html, key, value)
+            bicing_list_html = u''.join((bicing_list_html, bicing_html))
+        event_html = replace_in_html(
             event_html, "stations_with_slots_list", bicing_list_html)
     else:
-        event_html = html_wr(event_html, "stations_with_slots_list", u"No hay estaciones de bicing con sitios a menos de 500m, se mostrará el transporte público disponible a menos de 1km")
+        # si no hay bicis se muestra un mensaje
+        event_html = replace_in_html(event_html, "stations_with_slots_list", u"No hay estaciones de bicing con sitios a menos de 500m, se mostrará el transporte público disponible a menos de 1km")
 
-    # inserción de las estaciones con bicis
-    bicing_list_html = u""
-    for bicing_station in event.stations_with_bikes:
-        bicing_html = bicing_raw_html
-        # inserción de los atributos
-        for key, value in bicing_station.__dict__.items():
-            bicing_html = html_wr(bicing_html, key, value)
-        bicing_list_html = u''.join((bicing_list_html, bicing_html))
     if len(event.stations_with_bikes) != 0:
-        event_html = html_wr(
+        bicing_list_html = u""
+        # inserción de las estaciones con bicis
+        for bicing_station in event.stations_with_bikes:
+            bicing_html = bicing_raw_html
+            # inserción en el html de los atributos
+            for key, value in bicing_station.__dict__.items():
+                bicing_html = replace_in_html(bicing_html, key, value)
+            bicing_list_html = u''.join((bicing_list_html, bicing_html))
+        event_html = replace_in_html(
             event_html, "stations_with_bikes_list", bicing_list_html)
     else:
-        event_html = html_wr(event_html, "stations_with_bikes_list", u"No hay estaciones de bicing con bicis a menos de 500m, se mostrará el transporte público disponible a menos de 1km")
+        # si no hay bicis se muestra un mensaje
+        event_html = replace_in_html(event_html, "stations_with_bikes_list", u"No hay estaciones de bicing con bicis a menos de 500m, se mostrará el transporte público disponible a menos de 1km")
 
     if event.public_trans is not None:
-        # inserción de las estaciones públicas
         public_transport_stations_html = u""
+        # inserción de las estaciones públicas
         for station_name, public_station in event.public_trans.items():
             public_station_html = public_trans_raw_html
-            # inserción de los atributos
+            # inserción en el html de los atributos
             for key, value in public_station.items():
-                public_station_html = html_wr(public_station_html, key, value)
+                public_station_html = replace_in_html(
+                    public_station_html, key, value)
 
             public_transport_stations_html += public_station_html
-        event_html = html_wr(
+        event_html = replace_in_html(
             event_html, "public_trans_list", public_transport_stations_html)
     else:
-        event_html = html_wr(
-            event_html, "public_trans_list", u"No hay estaciones de transporte")
+        # si no hay estaciones de transporte publico se muestra un mensaje
+        event_html = replace_in_html(
+            event_html, "public_trans_list", u"No hay estaciones de transporte público")
     if event_html is not None:
         events_html = u''.join((events_html, event_html))
 
 
-home_raw_html = html_wr(home_raw_html, "events_list", events_html)
+home_raw_html = replace_in_html(home_raw_html, "events_list", events_html)
 # print home_raw_html.encode("utf-8")
 f = codecs.open('home.html', 'w', 'utf-8')
 f.write(home_raw_html)
@@ -640,5 +638,5 @@ print "Bye!"
   # 5 estaciones bicing con bicis <500m ord prox, si no hay -> transp. publico
 # si prevision de lluvia no baja (media o alta?): OK
   # paradas transp. publico <1000m ord prox, no repetir buses, estacion o linea metro
-# escribir toda la info en un html
+# escribir toda la info en un html OK
 ###############################################################################
