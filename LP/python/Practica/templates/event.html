@@ -1,0 +1,41 @@
+<!-- Evento -->
+<table style="border: 1px solid #BBB">
+<tr> <td> <strong>{{nom}}</strong> </td>
+    <td> Proper acte: {{data_proper_acte}} - {{hora_fi}} </td>
+    <td> Localització: {{nom_lloc}} </td> </tr>
+<tr> <td> Adreça: {{carrer}} {{numero}}</td>
+    <td> {{barri}} {{districte}} </td>
+    <td> CP:{{codi_postal}}, {{municipi}} </td> </tr>
+<tr> <td> {{telefons}} fax:{{fax}} </td>
+    <td> Tags: {{classificacions}} </td>
+    <td> <span style="cursor:pointer; color:blue;"
+ title="
+ latitude: {{lat}}
+ longitude: {{lon}}
+ tipus acte: {{tipus_acte}}
+ rellevant: {{rellevant}}
+ estat: {{estat}}
+ estat_cicle: {{estat_cicle}}
+ "> extra info</span> </td> </tr>
+
+<!-- Estaciones bicing -->
+<tr style="vertical-align:top;">
+    <td> Estaciones Bicing con <strong>slots</strong>
+        <ul>
+            {{stations_with_slots_list}}
+        </ul>
+    </td>
+
+    <td> Estaciones Bicing con <strong>bicis</strong>
+        <ul>
+            {{stations_with_bikes_list}}
+        </ul>
+    </td>
+    <td> Cómo ir en transporte público
+        <ul style="overflow-y:scroll;">
+            {{public_trans_list}}
+        </ul>
+    </td>
+</tr>
+<!-- Fin Estaciones bicing -->
+</table><!-- Fin evento -->
