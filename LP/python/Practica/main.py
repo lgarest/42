@@ -15,6 +15,14 @@ events_url = "http://w10.bcn.es/APPS/asiasiacache/peticioXmlAsia?id=199"
 weather_url = "http://static-m.meteo.cat/content/opendata/ctermini_comarcal.xml"
 bicing_url = "http://wservice.viabicing.cat/v1/getstations.php?v=1"
 
+templates = {
+    'bicing_station': '<!-- Estacion bicing --> <li> {{street}}, {{streetNumber}} <br> {{bikes}} bikes, {{slots}} slots a {{distance}} m <span style="cursor:pointer; color:blue;" title="lat: {{lat}}, long: {{long}}">(extra)</span></li> <!-- Fin estacion bicing -->',
+    'event': '<!-- Evento --> <table> <tr> <td> <strong>{{nom}}</strong> </td> <td> <i>Proper acte:</i> {{data_proper_acte}} - {{hora_fi}} </td> <td> <i>Localització:</i> {{nom_lloc}} </td> </tr> <tr> <td> <i>Adreça:</i> {{carrer}} {{numero}}</td> <td> {{barri}} {{districte}} </td> <td> <i>CP:</i> {{codi_postal}}, {{municipi}} </td> </tr> <tr> <td> {{telefons}} fax: {{fax}} </td> <td> <i>classificacions:</i> {{classificacions}} </td> <td> <center> <span style="cursor:pointer; color:blue;"title="latitude: {{lat}} longitude: {{lon}} tipus acte: {{tipus_acte}} rellevant: {{rellevant}} estat: {{estat}} estat_cicle: {{estat_cicle}} "> extra info</span> </center></td> </tr> <!-- Estaciones bicing --> <tr style="vertical-align:top;"> <td> <center> Estaciones Bicing con <strong>slots</strong> </center> <ul> {{stations_with_slots_list}} </ul> </td> <td> <center> Estaciones Bicing con <strong>bicis</strong> </center> <ul> {{stations_with_bikes_list}} </ul> </td> <td> <center> Cómo ir en <strong>transporte público</strong> </center> <ul style="overflow-y:scroll;"> {{public_trans_list}} </ul> </td> </tr> <!-- Fin Estaciones bicing --> </table><!-- Fin evento -->',
+    'index': '<html> <head> <meta charset="utf-8"> <title>Práctica Luis García Estrades</title> <style type="text/css"> td {border:1px solid #BBB; width: 300px; padding: 2px 5px; } ul {height: 200px; width: 300px; overflow-y:scroll; margin: 10px 0px 0px 0px; list-style-type: none; padding: 1px 0px 0px 0px; } li{border: 1px solid #ddd; margin-top: -1px; margin-right: 3px; padding: 5px; } table{margin-top: 15px; margin-bottom: 40px; border: 1px dashed #999; padding: 5px; background-color: #EEE; border-radius: 7px; } tbody{background-color: white; } </style> </head> <body> <center> <h1>Práctica de python de Luis García Estrades</h1> <span>Input: "{{input}}"</span> <br> <span>Se han encontrado <strong>{{number_of_events}}</strong> resultado/s</span> <br> <!-- Prediction --> {{prediction}} <!-- End prediction --> <div> <!-- Main container --> {{events_list}} <!-- End Main Container --> </div></center> </body> </html>',
+    'prediction': '<span>Tiempo para {{data}} en {{region}} {{min_temp_today}} - {{max_temp_today}} grados C <img src="http://static-m.meteo.cat/assets-w3/images/meteors/estatcel/{{simb_morning_today}}.png" style="width:37px;"> </span>',
+    'public_station': '<!-- Estación pública --> <li> {{tipus}} {{linea}} <br> a {{distance}} m <span style="cursor:pointer; color:blue;" title="lat: {{lat}}, long: {{lon}}"> (extra)</span></li> <!-- Fin estación pública --> ',
+}
+
 
 #------------------------- Funciones auxiliares ------------------------------#
 
@@ -91,9 +99,9 @@ def replace_in_html(html, string, value):
     if string == "stations_with_slots" or string == "stations_with_bikes":
         return html
 
-    # en caso de que no se haya extraído el valor
+    # en caso de que no se haya pasado un valor
     if value is None:
-        value = u""
+        value = u"None"
 
     # si son strings y no están en unicode se transforman
     if not isinstance(html, unicode) and isinstance(html, str):
@@ -110,26 +118,13 @@ def replace_in_html(html, string, value):
         if isinstance(value, (str, unicode)):
             return re.sub("{{" + string + "}}", value, html, re.UNICODE)
         return re.sub("{{" + string + "}}", str(value), html)
-    # capturamos las excepciones
+    # capturamos las excepciones de decodificacion en unicode
     except UnicodeEncodeError:
         print "** UnicodeEncodeError var: %s value: %s" % (string, value)
     except UnicodeDecodeError:
         print "** UnicodeDecodeErrorvar: %s value: %s" % (string, value)
     return html
 
-
-def load_template(template_name):
-    """ Devuelve el contenido del template """
-    try:
-        file_name = "templates/" + template_name + ".html"
-        file = codecs.open(file_name, 'r', 'utf-8')
-        template_content = file.read()
-        file.close()
-        print "%s loaded" % (file_name)
-        return template_content
-    except:
-        print "el fichero %s no existe" % (file_name)
-        return None
 
 #-----------------------------------------------------------------------------#
 
@@ -144,7 +139,9 @@ class Event(object):
     lon = ""
 
     def __str__(self):
-        return "(%s) %s" % (self.idd, self.nom.encode("utf-8"))
+        return "%s en %s (%s %s)" % (
+            self.nom.encode("utf-8"), self.nom_lloc.encode('utf-8'),
+            self.carrer.encode("utf-8"), self.numero)
 
     def __init__(self, xml_event=None):
         """ Creadora que acepta un xml para generar el evento """
@@ -252,8 +249,8 @@ class Event(object):
                 return "tramvia", tram_match2
             return "otros", [station_name]
 
-        # por cada bus, comprobación de si está dentro del radio
-        # y obtención de su distancia
+        # por cada bus, se comprueba si está dentro del radio
+        # y se obtiene su distancia
         distance = get_distance(
             self.lat, self.lon,
             station["LATITUD"], station["LONGITUD"])
@@ -294,12 +291,12 @@ class Event(object):
 
         buses_copy, trans_copy = buses, trans
 
-        # añadimos los buses y metros al diccionario de transporte público
+        # se añaden los buses y metros al diccionario de transporte público
         map(self.__add_to_public_transport, buses_copy)
         map(self.__add_to_public_transport, trans_copy)
 
         if self.public_trans is not None:
-            # ordenamos el diccionario de metros, tren, tranvia por proximidad
+            # ordenación por proximidad
             self.public_trans = OrderedDict(
                 sorted(self.public_trans.items(), key=lambda t: t[1]["distance"]))
 
@@ -332,13 +329,13 @@ class Prediction(object):
         self.data = prediction_region[0].get('data')
 
     def __str__(self):
-        return "(%s) lluvia:%s, temp:%d-%d" % (
+        return "%s lluvia:%s, temp:%d-%d" % (
             self.region, self.rain_today, self.min_temp_today, self.max_temp_today)
 
 
 class BicingStation(object):
     """ Representa una estación de bicing """
-    # son los nombres de los atributos y el tipo de dato que contienen
+    # nombres de los atributos y el tipo de dato que contienen
     setters = {
         'id': int,
         'street': str,
@@ -408,10 +405,7 @@ class CustomDialect(csv.Dialect):
 #-----------------------------------------------------------------------------#
 
 #-------------------------- Gestión del input --------------------------------#
-# "nom:exposicio , barri:Poblenou"
-# user_input = raw_input("Escribe tu peticion:\n")
-user_input = u"barri:eixample"
-# user_input = u"nom:selecció natural, nom:estèreo"
+user_input = raw_input("Escribe tu peticion:\n")
 orig_input = user_input
 user_input = clean_str(user_input)
 
@@ -428,7 +422,7 @@ neighborhoods = re.findall(regexp_neighborhood, user_input)
 # contiene las peticiones por "lloc:"
 places = re.findall(regexp_place, user_input)
 
-# si no hay peticion termina el programa mostrando el formato
+# si no hay peticion válida termina el programa mostrando el formato aceptado
 if len(names) == 0 and len(neighborhoods) == 0 and len(places) == 0:
     print "Please insert a valid input!\n"
     print "The format is:"
@@ -443,14 +437,13 @@ if len(names) == 0 and len(neighborhoods) == 0 and len(places) == 0:
 #------------------------ Extracción de los eventos --------------------------#
 # extracción de los eventos
 # events_xml = xml_from_url(events_url)
-events_xml = xml_from_url("events.xml", True)
+events_xml = xml_from_url("events.xml", True)  # acceso en local
 
 events = dict()
 # iteración sobre cada nodo xml 'acte'
 for acte_xml in events_xml.findall('.//acte'):
     # instanciación del evento con el xml que contiene la info del evento
     event = Event(acte_xml)
-    # addición al diccionario de todos los eventos
     events[event.by_name] = event
 
 #-----------------------------------------------------------------------------#
@@ -477,7 +470,7 @@ else:
 # extraer la información del clima
 weather_xml = xml_from_url(weather_url)
 prediction_bcn = Prediction("Barcelona", weather_xml)
-print "prediction: %s" % (prediction_bcn)
+print "Predicción en %s" % (prediction_bcn)
 transports = []
 bus_stations = []
 if not prediction_bcn.rain_today:
@@ -495,16 +488,16 @@ if not prediction_bcn.rain_today:
         # estaciones de bicing a menos de 500 m con espacios
         event.stations_with_slots = bicing_stations.with_slots(
             stations=nearby_stations)
-        # las ordenamos por proximidad y nos quedamos con las 5 primeras
+        # ordenación por proximidad y nos quedamos con las 5 primeras
         event.stations_with_slots = sorted(event.stations_with_slots, key=lambda x: x.distance)[:5]
 
         # estaciones de bicing a menos de 500 m con bicis
         event.stations_with_bikes = bicing_stations.with_bikes(
             stations=nearby_stations)
-        # las ordenamos por proximidad y nos quedamos con las 5 primeras
+        # ordenación por proximidad y nos quedamos con las 5 primeras
         event.stations_with_bikes = sorted(event.stations_with_bikes, key=lambda x: x.distance)[:5]
 
-        # si no hay estaciones de bicing, obtenemos transporte publico
+        # si no hay estaciones de bicing, obtención del transporte publico
         if len(event.stations_with_bikes) != 0 or len(event.stations_with_slots) == 0:
             bus_stations, transports = get_bus_transports(bus_stations, transports)
             event.get_stations(radius=1000, buses=bus_stations, trans=transports)
@@ -521,13 +514,13 @@ else:
 #--------------------------- Generación del html -----------------------------#
 
 # carga de los templates originales
-home_raw_html = load_template("index")
-bicing_raw_html = load_template("bicing_station")
-event_raw_html = load_template("event")
-pred_html = load_template("prediction")
-public_trans_raw_html = load_template("public_station")
+home_raw_html = templates["index"]
+bicing_raw_html = templates["bicing_station"]
+event_raw_html = templates["event"]
+pred_html = templates["prediction"]
+public_trans_raw_html = templates["public_station"]
 
-# Populación en el template home
+# populación en el template index
 home_raw_html = replace_in_html(home_raw_html, "input", orig_input)
 home_raw_html = replace_in_html(home_raw_html, "number_of_events", len(matched_events))
 
